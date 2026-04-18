@@ -1,0 +1,1353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>T3 Research Collective — Robotics & Energy</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Share+Tech+Mono&family=Chakra+Petch:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #03050a;
+    --bg2: #060c14;
+    --accent1: #00f5c8;
+    --accent2: #ff4d6d;
+    --accent3: #7b61ff;
+    --accent4: #f5c400;
+    --text: #c8ddf0;
+    --text-dim: #4a6a8a;
+    --glow1: 0 0 20px rgba(0,245,200,0.4);
+    --glow2: 0 0 20px rgba(255,77,109,0.4);
+    --glow3: 0 0 20px rgba(123,97,255,0.4);
+    --panel: rgba(0,245,200,0.03);
+    --border: rgba(0,245,200,0.12);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Chakra Petch', sans-serif;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* CUSTOM CURSOR */
+  .cursor {
+    position: fixed; top: 0; left: 0;
+    width: 12px; height: 12px;
+    background: var(--accent1);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: transform 0.08s ease, background 0.2s;
+    mix-blend-mode: screen;
+  }
+  .cursor-ring {
+    position: fixed; top: 0; left: 0;
+    width: 36px; height: 36px;
+    border: 1px solid rgba(0,245,200,0.5);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: transform 0.18s ease;
+  }
+
+  /* NOISE OVERLAY */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.35;
+  }
+
+  /* GRID BACKGROUND */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,245,200,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,245,200,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ─── NAV ─── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 500;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 48px;
+    height: 72px;
+    background: rgba(3,5,10,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-logo {
+    font-family: 'Orbitron', monospace;
+    font-size: 1.1rem;
+    font-weight: 900;
+    letter-spacing: 0.2em;
+    color: var(--accent1);
+    text-shadow: var(--glow1);
+    display: flex; align-items: center; gap: 12px;
+  }
+  .nav-logo .t3-bracket {
+    font-size: 1.6rem; color: var(--accent2); text-shadow: var(--glow2);
+  }
+  .nav-links {
+    display: flex; gap: 36px; list-style: none;
+  }
+  .nav-links a {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    color: var(--text-dim);
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: color 0.2s;
+    position: relative;
+  }
+  .nav-links a::after {
+    content: '';
+    position: absolute; bottom: -4px; left: 0; right: 0;
+    height: 1px; background: var(--accent1);
+    transform: scaleX(0); transition: transform 0.2s;
+  }
+  .nav-links a:hover { color: var(--accent1); }
+  .nav-links a:hover::after { transform: scaleX(1); }
+  .nav-cta {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    color: var(--bg);
+    background: var(--accent1);
+    border: none; outline: none;
+    padding: 10px 22px;
+    text-transform: uppercase;
+    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+    cursor: none;
+    transition: box-shadow 0.2s;
+  }
+  .nav-cta:hover { box-shadow: var(--glow1); }
+
+  /* ─── HERO ─── */
+  #hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex; align-items: center;
+    padding: 100px 48px 60px;
+    overflow: hidden;
+  }
+
+  .hero-bg-orb {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    filter: blur(80px);
+  }
+  .orb1 {
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(0,245,200,0.08) 0%, transparent 70%);
+    top: -100px; right: -100px;
+    animation: orbFloat 8s ease-in-out infinite;
+  }
+  .orb2 {
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(255,77,109,0.07) 0%, transparent 70%);
+    bottom: 0; left: 10%;
+    animation: orbFloat 11s ease-in-out infinite reverse;
+  }
+  .orb3 {
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(123,97,255,0.06) 0%, transparent 70%);
+    top: 40%; left: 40%;
+    animation: orbFloat 14s ease-in-out infinite;
+  }
+
+  @keyframes orbFloat {
+    0%, 100% { transform: translate(0,0); }
+    50% { transform: translate(30px, -40px); }
+  }
+
+  .hero-content {
+    position: relative; z-index: 2;
+    max-width: 760px;
+  }
+  .hero-tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.25em;
+    color: var(--accent1);
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    display: flex; align-items: center; gap: 12px;
+    animation: fadeInUp 0.6s ease both;
+  }
+  .hero-tag::before {
+    content: '';
+    display: inline-block; width: 32px; height: 1px;
+    background: var(--accent1);
+  }
+  .hero-title {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(2.6rem, 5vw, 5rem);
+    font-weight: 900;
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+    margin-bottom: 28px;
+    animation: fadeInUp 0.6s 0.1s ease both;
+  }
+  .hero-title .line1 { color: #fff; display: block; }
+  .hero-title .line2 {
+    display: block;
+    background: linear-gradient(90deg, var(--accent1), var(--accent3));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero-title .line3 { color: var(--accent2); display: block; font-size: 0.55em; letter-spacing: 0.15em; }
+  .hero-desc {
+    font-size: 0.95rem;
+    line-height: 1.8;
+    color: var(--text-dim);
+    max-width: 520px;
+    margin-bottom: 40px;
+    animation: fadeInUp 0.6s 0.2s ease both;
+  }
+  .hero-buttons {
+    display: flex; gap: 16px; flex-wrap: wrap;
+    animation: fadeInUp 0.6s 0.3s ease both;
+  }
+  .btn-primary {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--bg);
+    background: var(--accent1);
+    border: none;
+    padding: 14px 32px;
+    cursor: none;
+    clip-path: polygon(12px 0%,100% 0%,calc(100% - 12px) 100%,0% 100%);
+    transition: box-shadow 0.2s, transform 0.2s;
+    text-decoration: none;
+    display: inline-block;
+  }
+  .btn-primary:hover { box-shadow: 0 0 30px rgba(0,245,200,0.5); transform: translateY(-2px); }
+  .btn-ghost {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent1);
+    background: transparent;
+    border: 1px solid rgba(0,245,200,0.3);
+    padding: 14px 32px;
+    cursor: none;
+    clip-path: polygon(12px 0%,100% 0%,calc(100% - 12px) 100%,0% 100%);
+    transition: background 0.2s, box-shadow 0.2s;
+    text-decoration: none;
+    display: inline-block;
+  }
+  .btn-ghost:hover { background: rgba(0,245,200,0.07); box-shadow: var(--glow1); }
+
+  /* HERO STATS */
+  .hero-stats {
+    position: absolute;
+    right: 48px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    z-index: 2;
+    animation: fadeInRight 0.8s 0.4s ease both;
+  }
+  .stat-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 20px 24px;
+    min-width: 160px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px; height: 100%;
+    background: var(--accent1);
+    transition: background 0.2s;
+  }
+  .stat-card:nth-child(2)::before { background: var(--accent2); }
+  .stat-card:nth-child(3)::before { background: var(--accent3); }
+  .stat-card:hover { border-color: rgba(0,245,200,0.3); }
+  .stat-num {
+    font-family: 'Orbitron', monospace;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1;
+  }
+  .stat-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin-top: 6px;
+  }
+
+  /* SCROLL INDICATOR */
+  .scroll-indicator {
+    position: absolute;
+    bottom: 36px; left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+    display: flex; flex-direction: column;
+    align-items: center; gap: 8px;
+    animation: fadeIn 1s 1s ease both;
+  }
+  .scroll-line {
+    width: 1px; height: 48px;
+    background: linear-gradient(to bottom, var(--accent1), transparent);
+    animation: scrollPulse 1.5s ease-in-out infinite;
+  }
+  .scroll-text {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    writing-mode: vertical-rl;
+  }
+  @keyframes scrollPulse {
+    0%, 100% { opacity: 0.3; transform: scaleY(0.8); }
+    50% { opacity: 1; transform: scaleY(1); }
+  }
+
+  /* TICKER */
+  .ticker-wrap {
+    background: rgba(0,245,200,0.04);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    overflow: hidden;
+    padding: 10px 0;
+    position: relative;
+    z-index: 2;
+  }
+  .ticker-track {
+    display: flex;
+    animation: ticker 28s linear infinite;
+    white-space: nowrap;
+  }
+  .ticker-item {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    color: var(--text-dim);
+    padding: 0 40px;
+    text-transform: uppercase;
+  }
+  .ticker-item span { color: var(--accent1); margin-right: 12px; }
+  @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+  /* ─── SECTION COMMON ─── */
+  section { position: relative; z-index: 1; }
+  .section-header {
+    display: flex; align-items: flex-end; justify-content: space-between;
+    margin-bottom: 60px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.25em;
+    color: var(--accent1);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .section-label::before {
+    content: '';
+    display: inline-block; width: 20px; height: 1px;
+    background: var(--accent1);
+  }
+  .section-title {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(1.8rem, 3vw, 2.8rem);
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.1;
+  }
+  .section-count {
+    font-family: 'Orbitron', monospace;
+    font-size: 5rem;
+    font-weight: 900;
+    color: rgba(0,245,200,0.06);
+    line-height: 1;
+    user-select: none;
+  }
+
+  /* ─── RESEARCH AREAS ─── */
+  #research {
+    padding: 120px 48px;
+    background: var(--bg2);
+  }
+  .research-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+  }
+  .research-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 40px 36px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s, transform 0.3s;
+    cursor: none;
+  }
+  .research-card:hover {
+    border-color: rgba(0,245,200,0.3);
+    transform: translateY(-4px);
+    z-index: 2;
+  }
+  .research-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(0,245,200,0.04) 0%, transparent 60%);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .research-card:hover::after { opacity: 1; }
+  .card-icon {
+    width: 52px; height: 52px;
+    margin-bottom: 28px;
+    position: relative;
+  }
+  .card-icon svg {
+    width: 100%; height: 100%;
+  }
+  .card-num {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--text-dim);
+    margin-bottom: 14px;
+    text-transform: uppercase;
+  }
+  .card-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 16px;
+    line-height: 1.3;
+  }
+  .card-desc {
+    font-size: 0.85rem;
+    line-height: 1.7;
+    color: var(--text-dim);
+    margin-bottom: 28px;
+  }
+  .card-tag {
+    display: inline-block;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    color: var(--accent1);
+    border: 1px solid rgba(0,245,200,0.25);
+    padding: 4px 10px;
+    text-transform: uppercase;
+    clip-path: polygon(4px 0%,100% 0%,calc(100% - 4px) 100%,0% 100%);
+    margin-right: 6px;
+    margin-bottom: 6px;
+  }
+  .card-tag.red { color: var(--accent2); border-color: rgba(255,77,109,0.25); }
+  .card-tag.purple { color: var(--accent3); border-color: rgba(123,97,255,0.25); }
+
+  /* FEATURED LARGE CARD */
+  .research-card.large {
+    grid-column: span 2;
+    background: rgba(0,245,200,0.03);
+  }
+  .large-inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+    align-items: center;
+  }
+  .large-visual {
+    position: relative;
+    height: 240px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .hex-grid {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* ─── ENERGY METRICS ─── */
+  #metrics {
+    padding: 120px 48px;
+  }
+  .metrics-layout {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 80px;
+    align-items: start;
+  }
+  .metric-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .metric-row {
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 18px 24px;
+    transition: border-color 0.2s;
+    cursor: none;
+  }
+  .metric-row:hover { border-color: rgba(0,245,200,0.25); }
+  .metric-name {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+  }
+  .metric-val {
+    font-family: 'Orbitron', monospace;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--accent1);
+  }
+  .metric-bar-wrap {
+    margin-top: 6px;
+    height: 2px;
+    background: rgba(0,245,200,0.1);
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+  .metric-bar-fill {
+    height: 100%;
+    background: var(--accent1);
+    transition: width 1.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* CHART AREA */
+  .chart-panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 36px;
+  }
+  .chart-header {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    margin-bottom: 32px;
+  }
+  .chart-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #fff;
+  }
+  .chart-sub {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+  .chart-legend {
+    display: flex; gap: 20px;
+  }
+  .legend-item {
+    display: flex; align-items: center; gap: 8px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+  }
+  .legend-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+  }
+  .chart-area {
+    position: relative;
+    height: 220px;
+  }
+
+  /* ─── TEAM ─── */
+  #team {
+    padding: 120px 48px;
+    background: var(--bg2);
+  }
+  .team-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2px;
+  }
+  .team-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 32px 28px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s;
+    cursor: none;
+  }
+  .team-card:hover { border-color: rgba(0,245,200,0.3); }
+  .team-card::before {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent1), var(--accent3));
+    transform: scaleX(0);
+    transition: transform 0.3s;
+  }
+  .team-card:hover::before { transform: scaleX(1); }
+  .avatar {
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    margin: 0 auto 20px;
+    position: relative;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Orbitron', monospace;
+    font-size: 1.4rem;
+    font-weight: 900;
+    color: var(--bg);
+    overflow: hidden;
+  }
+  .avatar::before {
+    content: '';
+    position: absolute; inset: 0;
+    border-radius: 50%;
+    border: 1px solid rgba(0,245,200,0.3);
+  }
+  .member-name {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 6px;
+  }
+  .member-role {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    color: var(--accent1);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .member-dept {
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    line-height: 1.5;
+  }
+
+  /* ─── PUBLICATIONS ─── */
+  #publications {
+    padding: 120px 48px;
+  }
+  .pub-list {
+    display: flex; flex-direction: column; gap: 2px;
+  }
+  .pub-row {
+    display: grid;
+    grid-template-columns: 80px 1fr 120px 100px;
+    align-items: center;
+    gap: 24px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 24px 28px;
+    transition: border-color 0.2s;
+    cursor: none;
+  }
+  .pub-row:hover { border-color: rgba(0,245,200,0.25); }
+  .pub-year {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--accent1);
+  }
+  .pub-title {
+    font-size: 0.88rem;
+    color: #fff;
+    font-weight: 500;
+  }
+  .pub-journal {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+  }
+  .pub-badge {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    text-align: center;
+    clip-path: polygon(4px 0%,100% 0%,calc(100% - 4px) 100%,0% 100%);
+  }
+  .pub-badge.featured { color: var(--bg); background: var(--accent1); }
+  .pub-badge.new { color: var(--bg); background: var(--accent2); }
+  .pub-badge.open { color: var(--accent3); border: 1px solid rgba(123,97,255,0.4); }
+
+  /* ─── CTA BAND ─── */
+  #cta {
+    padding: 120px 48px;
+    background: var(--bg2);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .cta-orb {
+    position: absolute;
+    width: 800px; height: 800px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,245,200,0.06) 0%, transparent 60%);
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
+  #cta .section-label { justify-content: center; }
+  .cta-title {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    font-weight: 900;
+    color: #fff;
+    margin: 16px 0 24px;
+    line-height: 1.1;
+  }
+  .cta-title span { color: var(--accent1); }
+  .cta-desc {
+    font-size: 0.92rem;
+    color: var(--text-dim);
+    max-width: 540px;
+    margin: 0 auto 48px;
+    line-height: 1.8;
+  }
+
+  /* ─── FOOTER ─── */
+  footer {
+    padding: 48px;
+    border-top: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .footer-logo {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.9rem;
+    font-weight: 900;
+    color: var(--text-dim);
+    letter-spacing: 0.15em;
+  }
+  .footer-copy {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+  }
+  .footer-links {
+    display: flex; gap: 28px; list-style: none;
+  }
+  .footer-links a {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+  .footer-links a:hover { color: var(--accent1); }
+
+  /* ANIMATIONS */
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeInRight {
+    from { opacity: 0; transform: translateX(30px) translateY(-50%); }
+    to { opacity: 1; transform: translateX(0) translateY(-50%); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  /* SCAN LINE */
+  .scan-line {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent1), transparent);
+    opacity: 0.15;
+    pointer-events: none;
+    z-index: 800;
+    animation: scan 4s ease-in-out infinite;
+  }
+  @keyframes scan {
+    0% { top: 0; opacity: 0.15; }
+    100% { top: 100vh; opacity: 0; }
+  }
+
+  /* CANVAS for chart */
+  canvas { display: block; }
+
+  @media (max-width: 1100px) {
+    .hero-stats { display: none; }
+    .research-grid { grid-template-columns: 1fr 1fr; }
+    .research-card.large { grid-column: span 2; }
+    .large-inner { grid-template-columns: 1fr; }
+    .large-visual { display: none; }
+    .team-grid { grid-template-columns: repeat(2, 1fr); }
+    .metrics-layout { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+<div class="scan-line"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <span class="t3-bracket">[</span>T3<span class="t3-bracket">]</span>
+    RESEARCH COLLECTIVE
+  </div>
+  <ul class="nav-links">
+    <li><a href="#research">Research</a></li>
+    <li><a href="#metrics">Energy</a></li>
+    <li><a href="#team">Team</a></li>
+    <li><a href="#publications">Publications</a></li>
+  </ul>
+  <button class="nav-cta">Apply Now</button>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg-orb orb1"></div>
+  <div class="hero-bg-orb orb2"></div>
+  <div class="hero-bg-orb orb3"></div>
+
+  <div class="hero-content">
+    <div class="hero-tag">Est. 2019 — New York, USA</div>
+    <h1 class="hero-title">
+      <span class="line3">T3 Research Collective</span>
+      <span class="line1">The Future of</span>
+      <span class="line2">Robotics & Energy</span>
+    </h1>
+    <p class="hero-desc">
+      Pioneering autonomous systems, next-generation energy infrastructure, and the convergence of machine intelligence with sustainable power at the frontier of human knowledge.
+    </p>
+    <div class="hero-buttons">
+      <a href="#research" class="btn-primary">Explore Research</a>
+      <a href="#publications" class="btn-ghost">View Publications</a>
+    </div>
+  </div>
+
+  <div class="hero-stats">
+    <div class="stat-card">
+      <div class="stat-num">148</div>
+      <div class="stat-label">Active Projects</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">$2.4B</div>
+      <div class="stat-label">Funding Raised</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">312</div>
+      <div class="stat-label">Researchers</div>
+    </div>
+  </div>
+
+  <div class="scroll-indicator">
+    <div class="scroll-line"></div>
+    <div class="scroll-text">Scroll</div>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker-wrap">
+  <div class="ticker-track" id="ticker">
+    <span class="ticker-item"><span>◆</span> Autonomous Locomotion</span>
+    <span class="ticker-item"><span>◆</span> Solid-State Batteries</span>
+    <span class="ticker-item"><span>◆</span> Neural Robotics Interface</span>
+    <span class="ticker-item"><span>◆</span> Fusion Plasma Control</span>
+    <span class="ticker-item"><span>◆</span> Swarm Intelligence</span>
+    <span class="ticker-item"><span>◆</span> Hydrogen Storage Systems</span>
+    <span class="ticker-item"><span>◆</span> Exoskeletal Augmentation</span>
+    <span class="ticker-item"><span>◆</span> Perovskite Solar Arrays</span>
+    <span class="ticker-item"><span>◆</span> Autonomous Locomotion</span>
+    <span class="ticker-item"><span>◆</span> Solid-State Batteries</span>
+    <span class="ticker-item"><span>◆</span> Neural Robotics Interface</span>
+    <span class="ticker-item"><span>◆</span> Fusion Plasma Control</span>
+    <span class="ticker-item"><span>◆</span> Swarm Intelligence</span>
+    <span class="ticker-item"><span>◆</span> Hydrogen Storage Systems</span>
+    <span class="ticker-item"><span>◆</span> Exoskeletal Augmentation</span>
+    <span class="ticker-item"><span>◆</span> Perovskite Solar Arrays</span>
+  </div>
+</div>
+
+<!-- RESEARCH -->
+<section id="research">
+  <div style="padding: 120px 48px;">
+    <div class="section-header">
+      <div>
+        <div class="section-label">Core Divisions</div>
+        <h2 class="section-title">Research Areas</h2>
+      </div>
+      <div class="section-count">02</div>
+    </div>
+    <div class="research-grid">
+
+      <!-- LARGE CARD -->
+      <div class="research-card large">
+        <div class="large-inner">
+          <div>
+            <div class="card-num">Division 01 — Flagship</div>
+            <h3 class="card-title">Adaptive Autonomous Robotics</h3>
+            <p class="card-desc">
+              Developing next-gen robots that learn, adapt, and operate in unstructured real-world environments. Our systems integrate reinforcement learning with bio-inspired mechanical design to achieve unprecedented mobility and task versatility.
+            </p>
+            <div>
+              <span class="card-tag">Locomotion</span>
+              <span class="card-tag">RL Systems</span>
+              <span class="card-tag red">Manipulation</span>
+              <span class="card-tag purple">Perception</span>
+            </div>
+          </div>
+          <div class="large-visual">
+            <svg viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg" width="220" height="220">
+              <defs>
+                <radialGradient id="rg1" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stop-color="#00f5c8" stop-opacity="0.15"/>
+                  <stop offset="100%" stop-color="#00f5c8" stop-opacity="0"/>
+                </radialGradient>
+              </defs>
+              <circle cx="120" cy="120" r="100" fill="url(#rg1)"/>
+              <circle cx="120" cy="120" r="100" fill="none" stroke="rgba(0,245,200,0.15)" stroke-width="1" stroke-dasharray="4 6"/>
+              <circle cx="120" cy="120" r="70" fill="none" stroke="rgba(0,245,200,0.2)" stroke-width="1"/>
+              <circle cx="120" cy="120" r="40" fill="none" stroke="rgba(0,245,200,0.3)" stroke-width="1.5"/>
+              <!-- Robot figure simplified -->
+              <rect x="102" y="80" width="36" height="28" rx="4" fill="none" stroke="#00f5c8" stroke-width="1.5"/>
+              <circle cx="120" cy="94" r="8" fill="none" stroke="#00f5c8" stroke-width="1.5"/>
+              <rect x="106" y="108" width="28" height="36" rx="3" fill="none" stroke="#00f5c8" stroke-width="1.5"/>
+              <rect x="90" y="110" width="14" height="26" rx="3" fill="none" stroke="#7b61ff" stroke-width="1.5"/>
+              <rect x="136" y="110" width="14" height="26" rx="3" fill="none" stroke="#7b61ff" stroke-width="1.5"/>
+              <rect x="108" y="144" width="12" height="22" rx="3" fill="none" stroke="#00f5c8" stroke-width="1.5"/>
+              <rect x="120" y="144" width="12" height="22" rx="3" fill="none" stroke="#00f5c8" stroke-width="1.5"/>
+              <!-- scan lines -->
+              <line x1="20" y1="94" x2="100" y2="94" stroke="rgba(0,245,200,0.3)" stroke-width="1" stroke-dasharray="2 4"/>
+              <line x1="140" y1="94" x2="220" y2="94" stroke="rgba(0,245,200,0.3)" stroke-width="1" stroke-dasharray="2 4"/>
+              <circle cx="120" cy="94" r="2" fill="#00f5c8">
+                <animate attributeName="opacity" values="1;0;1" dur="1.5s" repeatCount="indefinite"/>
+              </circle>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="research-card">
+        <div class="card-icon">
+          <svg viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <polygon points="26,4 48,16 48,36 26,48 4,36 4,16" stroke="#00f5c8" stroke-width="1.5" fill="rgba(0,245,200,0.05)"/>
+            <polygon points="26,14 38,20 38,32 26,38 14,32 14,20" stroke="rgba(0,245,200,0.4)" stroke-width="1" fill="none"/>
+            <circle cx="26" cy="26" r="5" fill="#00f5c8" opacity="0.8"/>
+          </svg>
+        </div>
+        <div class="card-num">Division 02</div>
+        <h3 class="card-title">Fusion Energy Systems</h3>
+        <p class="card-desc">AI-driven plasma control and real-time instability prediction for compact tokamak reactors targeting commercial viability by 2032.</p>
+        <span class="card-tag">Plasma Physics</span>
+        <span class="card-tag red">Tokamak</span>
+      </div>
+
+      <div class="research-card">
+        <div class="card-icon">
+          <svg viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="6" y="6" width="40" height="40" rx="3" stroke="#ff4d6d" stroke-width="1.5" fill="rgba(255,77,109,0.05)"/>
+            <line x1="6" y1="26" x2="46" y2="26" stroke="rgba(255,77,109,0.3)" stroke-width="1"/>
+            <polyline points="6,36 16,20 24,30 32,16 46,28" stroke="#ff4d6d" stroke-width="2" fill="none"/>
+          </svg>
+        </div>
+        <div class="card-num">Division 03</div>
+        <h3 class="card-title">Swarm Intelligence</h3>
+        <p class="card-desc">Emergent coordination protocols for thousand-unit robotic swarms in disaster response, infrastructure inspection, and precision agriculture.</p>
+        <span class="card-tag red">Coordination</span>
+        <span class="card-tag purple">Multi-Agent</span>
+      </div>
+
+      <div class="research-card">
+        <div class="card-icon">
+          <svg viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="26" cy="26" r="20" stroke="#7b61ff" stroke-width="1.5" fill="rgba(123,97,255,0.05)"/>
+            <circle cx="26" cy="26" r="8" stroke="#7b61ff" stroke-width="1.5" fill="rgba(123,97,255,0.15)"/>
+            <line x1="26" y1="6" x2="26" y2="18" stroke="rgba(123,97,255,0.5)" stroke-width="1.5"/>
+            <line x1="26" y1="34" x2="26" y2="46" stroke="rgba(123,97,255,0.5)" stroke-width="1.5"/>
+            <line x1="6" y1="26" x2="18" y2="26" stroke="rgba(123,97,255,0.5)" stroke-width="1.5"/>
+            <line x1="34" y1="26" x2="46" y2="26" stroke="rgba(123,97,255,0.5)" stroke-width="1.5"/>
+          </svg>
+        </div>
+        <div class="card-num">Division 04</div>
+        <h3 class="card-title">Solid-State Energy Storage</h3>
+        <p class="card-desc">Developing ceramic electrolyte matrices for 4x density improvement over lithium-ion with complete elimination of thermal runaway risk.</p>
+        <span class="card-tag purple">Batteries</span>
+        <span class="card-tag">Materials</span>
+      </div>
+
+      <div class="research-card">
+        <div class="card-icon">
+          <svg viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M26 8 L40 18 L40 34 L26 44 L12 34 L12 18 Z" stroke="#f5c400" stroke-width="1.5" fill="rgba(245,196,0,0.05)"/>
+            <polyline points="20,24 24,20 28,26 32,22" stroke="#f5c400" stroke-width="2" fill="none"/>
+            <circle cx="20" cy="24" r="2.5" fill="#f5c400"/>
+            <circle cx="32" cy="22" r="2.5" fill="#f5c400"/>
+          </svg>
+        </div>
+        <div class="card-num">Division 05</div>
+        <h3 class="card-title">Neural Control Interfaces</h3>
+        <p class="card-desc">High-bandwidth bidirectional brain-machine interfaces enabling seamless teleoperation of robotic systems with sub-10ms latency.</p>
+        <span class="card-tag">BMI</span>
+        <span class="card-tag red">Latency</span>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- METRICS -->
+<section id="metrics">
+  <div class="section-header" style="padding: 0 48px;">
+    <div>
+      <div class="section-label">Performance Data</div>
+      <h2 class="section-title">Energy Metrics</h2>
+    </div>
+    <div class="section-count">03</div>
+  </div>
+  <div class="metrics-layout" style="padding: 0 48px 120px;">
+    <div>
+      <div class="metric-list">
+        <div class="metric-row" style="flex-wrap: wrap; row-gap: 12px;">
+          <div class="metric-name">Power Density</div>
+          <div class="metric-val">840 W/kg</div>
+          <div style="width:100%; height: 2px; background: rgba(0,245,200,0.1);">
+            <div class="metric-bar-fill" style="width:84%"></div>
+          </div>
+        </div>
+        <div class="metric-row" style="flex-wrap: wrap; row-gap: 12px;">
+          <div class="metric-name">Round-trip Efficiency</div>
+          <div class="metric-val" style="color: var(--accent2);">96.2%</div>
+          <div style="width:100%; height: 2px; background: rgba(255,77,109,0.1);">
+            <div class="metric-bar-fill" style="width:96.2%; background: var(--accent2);"></div>
+          </div>
+        </div>
+        <div class="metric-row" style="flex-wrap: wrap; row-gap: 12px;">
+          <div class="metric-name">Cycle Stability</div>
+          <div class="metric-val" style="color: var(--accent3);">12,000+</div>
+          <div style="width:100%; height: 2px; background: rgba(123,97,255,0.1);">
+            <div class="metric-bar-fill" style="width:72%; background: var(--accent3);"></div>
+          </div>
+        </div>
+        <div class="metric-row" style="flex-wrap: wrap; row-gap: 12px;">
+          <div class="metric-name">Charge Rate (C)</div>
+          <div class="metric-val">6C</div>
+          <div style="width:100%; height: 2px; background: rgba(0,245,200,0.1);">
+            <div class="metric-bar-fill" style="width:60%"></div>
+          </div>
+        </div>
+        <div class="metric-row" style="flex-wrap: wrap; row-gap: 12px;">
+          <div class="metric-name">Operating Temp Range</div>
+          <div class="metric-val" style="color: var(--accent4);">−40°→120°C</div>
+          <div style="width:100%; height: 2px; background: rgba(245,196,0,0.1);">
+            <div class="metric-bar-fill" style="width:88%; background: var(--accent4);"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="chart-panel">
+      <div class="chart-header">
+        <div>
+          <div class="chart-title">Output Power Projection</div>
+          <div class="chart-sub">Megawatts — 2022–2028 Forecast</div>
+        </div>
+        <div class="chart-legend">
+          <div class="legend-item"><div class="legend-dot" style="background: var(--accent1)"></div>Robotics</div>
+          <div class="legend-item"><div class="legend-dot" style="background: var(--accent2)"></div>Fusion</div>
+          <div class="legend-item"><div class="legend-dot" style="background: var(--accent3)"></div>Storage</div>
+        </div>
+      </div>
+      <div class="chart-area">
+        <canvas id="energyChart" width="700" height="220"></canvas>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TEAM -->
+<section id="team">
+  <div style="padding: 0 48px 0;">
+    <div class="section-header">
+      <div>
+        <div class="section-label">The Minds Behind T3</div>
+        <h2 class="section-title">Research Leaders</h2>
+      </div>
+      <div class="section-count">04</div>
+    </div>
+    <div class="team-grid" style="margin-bottom: 80px;">
+      <div class="team-card">
+        <div class="avatar" style="background: linear-gradient(135deg, var(--accent1), #005040)">DR</div>
+        <div class="member-name">Dr. Dana Reyes</div>
+        <div class="member-role">Director, Autonomous Systems</div>
+        <div class="member-dept">Former MIT CSAIL — 18 years in reinforcement learning for robotic locomotion</div>
+      </div>
+      <div class="team-card">
+        <div class="avatar" style="background: linear-gradient(135deg, var(--accent2), #500020)">KM</div>
+        <div class="member-name">Prof. Kenji Mori</div>
+        <div class="member-role">Lead, Fusion Energy</div>
+        <div class="member-dept">Princeton Plasma Physics Lab — Pioneer in AI-driven tokamak stabilization</div>
+      </div>
+      <div class="team-card">
+        <div class="avatar" style="background: linear-gradient(135deg, var(--accent3), #200050)">AO</div>
+        <div class="member-name">Dr. Amara Osei</div>
+        <div class="member-role">Chief Materials Scientist</div>
+        <div class="member-dept">Caltech Materials Science — Inventor of T3's ceramic electrolyte substrate</div>
+      </div>
+      <div class="team-card">
+        <div class="avatar" style="background: linear-gradient(135deg, var(--accent4), #504000)">LV</div>
+        <div class="member-name">Dr. Lena Vasquez</div>
+        <div class="member-role">Head, Neural Interfaces</div>
+        <div class="member-dept">UCSF Neuroscience — 200+ peer-reviewed publications in BMI research</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PUBLICATIONS -->
+<section id="publications">
+  <div style="padding: 0 48px 120px;">
+    <div class="section-header">
+      <div>
+        <div class="section-label">Knowledge Output</div>
+        <h2 class="section-title">Recent Publications</h2>
+      </div>
+      <div class="section-count">05</div>
+    </div>
+    <div class="pub-list">
+      <div class="pub-row">
+        <div class="pub-year">2025</div>
+        <div>
+          <div class="pub-title">Zero-Shot Terrain Adaptation in Bipedal Robots via Latent World Models</div>
+          <div class="pub-journal" style="margin-top:6px">Nature Machine Intelligence</div>
+        </div>
+        <div class="pub-journal">Reyes, Park et al.</div>
+        <div class="pub-badge featured">Featured</div>
+      </div>
+      <div class="pub-row">
+        <div class="pub-year">2025</div>
+        <div>
+          <div class="pub-title">Plasma Disruption Prediction at 50ms Lead-Time Using Transformer Architectures</div>
+          <div class="pub-journal" style="margin-top:6px">Physical Review Letters</div>
+        </div>
+        <div class="pub-journal">Mori, Chen et al.</div>
+        <div class="pub-badge new">New</div>
+      </div>
+      <div class="pub-row">
+        <div class="pub-year">2024</div>
+        <div>
+          <div class="pub-title">Ceramic-Oxide Solid Electrolytes: Suppressing Li Dendrite Growth at 6C Rates</div>
+          <div class="pub-journal" style="margin-top:6px">Advanced Energy Materials</div>
+        </div>
+        <div class="pub-journal">Osei, Kim et al.</div>
+        <div class="pub-badge open">Open Access</div>
+      </div>
+      <div class="pub-row">
+        <div class="pub-year">2024</div>
+        <div>
+          <div class="pub-title">1200-Agent Swarm Coordination: Emergent Behaviors Without Central Control</div>
+          <div class="pub-journal" style="margin-top:6px">Science Robotics</div>
+        </div>
+        <div class="pub-journal">Tanaka, Reyes et al.</div>
+        <div class="pub-badge featured">Featured</div>
+      </div>
+      <div class="pub-row">
+        <div class="pub-year">2024</div>
+        <div>
+          <div class="pub-title">Sub-8ms Latency Bidirectional Neural Interface for Robotic Teleoperation</div>
+          <div class="pub-journal" style="margin-top:6px">Neuron</div>
+        </div>
+        <div class="pub-journal">Vasquez, Li et al.</div>
+        <div class="pub-badge new">New</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="cta">
+  <div class="cta-orb"></div>
+  <div style="position:relative; z-index:2;">
+    <div class="section-label" style="justify-content:center;">Join The Frontier</div>
+    <h2 class="cta-title">Ready to Shape<br><span>Tomorrow's Technology?</span></h2>
+    <p class="cta-desc">
+      We're actively seeking researchers, engineers, and visionaries to join T3. Open positions across robotics, energy systems, materials science, and neural interfaces.
+    </p>
+    <div style="display:flex; gap:16px; justify-content:center; flex-wrap:wrap;">
+      <a href="#" class="btn-primary">View Open Roles</a>
+      <a href="#" class="btn-ghost">Partner With Us</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">[T3] COLLECTIVE © 2026</div>
+  <ul class="footer-links">
+    <li><a href="#">Privacy</a></li>
+    <li><a href="#">Terms</a></li>
+    <li><a href="#">Contact</a></li>
+    <li><a href="#">Press</a></li>
+  </ul>
+  <div class="footer-copy">New York, USA — All rights reserved</div>
+</footer>
+
+<script>
+  // Custom cursor
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursorRing');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+  function animateCursor() {
+    cursor.style.left = mx + 'px';
+    cursor.style.top = my + 'px';
+    rx += (mx - rx) * 0.12;
+    ry += (my - ry) * 0.12;
+    ring.style.left = rx + 'px';
+    ring.style.top = ry + 'px';
+    requestAnimationFrame(animateCursor);
+  }
+  animateCursor();
+  document.querySelectorAll('a, button, [class*="card"], [class*="row"]').forEach(el => {
+    el.addEventListener('mouseenter', () => { cursor.style.transform = 'translate(-50%,-50%) scale(2)'; cursor.style.background = '#ff4d6d'; });
+    el.addEventListener('mouseleave', () => { cursor.style.transform = 'translate(-50%,-50%) scale(1)'; cursor.style.background = '#00f5c8'; });
+  });
+
+  // Energy Chart
+  const canvas = document.getElementById('energyChart');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.offsetWidth || 700;
+  const H = 220;
+  canvas.width = W;
+
+  const years = ['2022','2023','2024','2025','2026','2027','2028'];
+  const data1 = [12, 22, 38, 64, 98, 148, 210];
+  const data2 = [2, 5, 9, 16, 32, 68, 130];
+  const data3 = [18, 30, 45, 72, 108, 162, 230];
+
+  function drawChart() {
+    ctx.clearRect(0, 0, W, H);
+    const pad = { left: 40, right: 20, top: 20, bottom: 30 };
+    const cw = W - pad.left - pad.right;
+    const ch = H - pad.top - pad.bottom;
+    const maxVal = 240;
+
+    // Grid
+    for (let i = 0; i <= 4; i++) {
+      const y = pad.top + ch - (i / 4) * ch;
+      ctx.strokeStyle = 'rgba(0,245,200,0.06)';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([3, 5]);
+      ctx.beginPath();
+      ctx.moveTo(pad.left, y);
+      ctx.lineTo(W - pad.right, y);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = 'rgba(0,245,200,0.25)';
+      ctx.font = '10px Share Tech Mono';
+      ctx.fillText(Math.round((i / 4) * maxVal), 2, y + 4);
+    }
+
+    function drawLine(data, color, dashed) {
+      const pts = data.map((v, i) => ({
+        x: pad.left + (i / (data.length - 1)) * cw,
+        y: pad.top + ch - (v / maxVal) * ch
+      }));
+
+      // Area fill
+      ctx.beginPath();
+      ctx.moveTo(pts[0].x, pad.top + ch);
+      pts.forEach(p => ctx.lineTo(p.x, p.y));
+      ctx.lineTo(pts[pts.length - 1].x, pad.top + ch);
+      ctx.closePath();
+      const grad = ctx.createLinearGradient(0, 0, 0, H);
+      grad.addColorStop(0, color.replace(')', ', 0.12)').replace('rgb', 'rgba'));
+      grad.addColorStop(1, color.replace(')', ', 0)').replace('rgb', 'rgba'));
+      ctx.fillStyle = color + '15';
+      ctx.fill();
+
+      // Line
+      ctx.beginPath();
+      if (dashed) ctx.setLineDash([6, 4]);
+      pts.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Dots
+      pts.forEach(p => {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 3.5, 0, Math.PI * 2);
+        ctx.fillStyle = color;
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 6, 0, Math.PI * 2);
+        ctx.strokeStyle = color + '40';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      });
+    }
+
+    drawLine(data3, '#7b61ff', true);
+    drawLine(data2, '#ff4d6d', false);
+    drawLine(data1, '#00f5c8', false);
+
+    // X labels
+    years.forEach((yr, i) => {
+      const x = pad.left + (i / (years.length - 1)) * cw;
+      ctx.fillStyle = 'rgba(74,106,138,0.8)';
+      ctx.font = '10px Share Tech Mono';
+      ctx.textAlign = 'center';
+      ctx.fillText(yr, x, H - 4);
+    });
+  }
+
+  setTimeout(drawChart, 100);
+  window.addEventListener('resize', drawChart);
+</script>
+</body>
+</html>
