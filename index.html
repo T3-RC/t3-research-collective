@@ -2,418 +2,831 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>T3 Research Collective — Robotics & Energy</title>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Share+Tech+Mono&family=Chakra+Petch:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>T3-RC — Project Network</title>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;800;900&family=Rajdhani:wght@300;400;500&family=Space+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:#04060e; color:#e8edf5; font-family:'Rajdhani',sans-serif; overflow:hidden; height:100vh; }
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:rgba(0,212,255,0.2)}
+.scanlines{position:fixed;top:0;left:0;right:0;bottom:0;pointer-events:none;z-index:9000;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.02) 2px,rgba(0,0,0,0.02) 4px)}
+@keyframes slideR{from{transform:translateX(16px);opacity:0}to{transform:none;opacity:1}}
+@keyframes slideL{from{transform:translateX(-16px);opacity:0}to{transform:none;opacity:1}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes wheelIn{from{opacity:0;transform:scale(0.75)}to{opacity:1;transform:scale(1)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+</style>
 </head>
 <body>
+<div class="scanlines"></div>
+<div id="root"></div>
+<script type="text/babel">
 
-<div class="cursor" id="cursor"></div>
-<div class="cursor-ring" id="cursorRing"></div>
-<div class="scan-line"></div>
+// ──────────────────────────────────────────────────────────────────────
+// │         T3-RC PROJECT NETWORK — EDIT THIS DATA BLOCK               │
+// ──────────────────────────────────────────────────────────────────────
+const DATA = {
+  projects: [
+    {
+      id:"quetzalcoatl",name:"Quetzalcóatl",subtitle:"Search & Rescue VTOL Drone",
+      icon:"◆",segment:"Robotics",status:"active",x:290,y:205,
+      description:"Autonomous VTOL drone for search and rescue. Combines fixed-wing endurance with multirotor precision. AI-driven object detection locates survivors in disaster zones.",
+      specs:["VTOL Tailsitter","AI Object Detection","60+ Min Endurance","Autonomous Nav"],
+      researchers:["elena-vasquez","james-okafor"],
+      connections:["tlalock","cipactli","tlaltecuhtli"],
+    },
+    {
+      id:"tlalock",name:"Tláloc",subtitle:"Autonomous Ground Vehicle",
+      icon:"◇",segment:"Robotics",status:"active",x:155,y:368,
+      description:"All-terrain autonomous ground vehicle for reconnaissance and payload delivery in environments too dangerous for human operators.",
+      specs:["All-Terrain","Sensor Fusion","Path Planning","Modular Payload"],
+      researchers:["marcus-chen","james-okafor"],
+      connections:["quetzalcoatl","cipactli","tezcatlipoca","coatlicue"],
+    },
+    {
+      id:"cipactli",name:"Cipactli",subtitle:"Unmanned Underwater Vehicle",
+      icon:"◈",segment:"Robotics",status:"active",x:450,y:330,
+      description:"Submersible autonomous platform for underwater inspection, environmental monitoring, and subsea operations.",
+      specs:["Depth-Rated Hull","Multi-Axis Thrust","Sonar Mapping","Autonomous Return"],
+      researchers:["sofia-reyes","nadia-torres"],
+      connections:["quetzalcoatl","tlalock","tezcatlipoca"],
+    },
+    {
+      id:"tezcatlipoca",name:"Tezcatlipoca",subtitle:"Collaborative Robot Arm",
+      icon:"◆",segment:"Robotics",status:"active",x:295,y:470,
+      description:"Precision robotic manipulator for collaborative human-robot workflows. Force-sensing joints enable safe operation alongside human operators.",
+      specs:["6-DOF Articulation","Force Sensing","Adaptive Grip","Human-Safe"],
+      researchers:["nadia-torres","ravi-patel"],
+      connections:["tlalock","cipactli","tonatiuh"],
+    },
+    {
+      id:"tonatiuh",name:"Tōnatiuh Reactor",subtitle:"Hydrogen Energy Generator",
+      icon:"⬡",segment:"Energy",status:"active",x:555,y:448,
+      description:"Compact hydrogen generation system for distributed clean energy. On-site H₂ production from water eliminates grid dependency.",
+      specs:["Electrolysis Core","Scalable Output","Zero-Emission","Grid-Independent"],
+      researchers:["ravi-patel","sofia-reyes"],
+      connections:["tezcatlipoca","xiuhcoatl"],
+    },
+    {
+      id:"xiuhcoatl",name:"Xiuhcóatl",subtitle:"Low-Orbit Research Platform",
+      icon:"◉",segment:"Space",status:"inactive-funding",x:695,y:285,
+      vision:"A small research satellite platform for atmospheric sensing and remote earth observation. Designed to carry payloads from the Tōnatiuh and Quetzalcóatl programs into low earth orbit, transmitting real-time disaster response and climate data.",
+      blockers:["$2.4M funding gap","Launch partnership pending","FCC spectrum licensing"],
+      sponsorOpportunity:"Naming rights + dedicated payload slot + full research data access for 5 years",
+      researchers:[],connections:["quetzalcoatl","tonatiuh"],
+    },
+    {
+      id:"coatlicue",name:"Coātlicue Lab",subtitle:"Bio-Robotics Research",
+      icon:"⬧",segment:"Bio",status:"inactive-researchers",x:98,y:218,
+      vision:"Biological-mechanical hybrid systems inspired by nature — soft robotics, neural interface research, and bio-inspired locomotion.",
+      blockers:["Need 2 PhD researchers — bio-mechanical engineering","Need 1 neural interface specialist"],
+      sponsorOpportunity:"Fund 1–2 researcher salaries for 12 months ($120K–$200K)",
+      researchers:[],connections:["quetzalcoatl","tlalock"],
+    },
+    {
+      id:"tlaltecuhtli",name:"Tlāltēcuhtli",subtitle:"Autonomous Testing Range",
+      icon:"⬤",segment:"Infrastructure",status:"inactive-resources",x:490,y:175,
+      vision:"A dedicated 50-acre autonomous systems testing range with varied terrain, FAA-coordinated airspace, underwater test pool, and full sensor/comm tower grid.",
+      blockers:["Land acquisition (~50 acres)","FAA airspace authorization","Construction permits","$800K estimated infrastructure"],
+      sponsorOpportunity:"Facility naming rights + priority test slot allocation for all sponsor programs",
+      researchers:[],connections:["quetzalcoatl","cipactli","tlalock"],
+    },
+  ],
 
-<!-- NAV -->
-<nav>
-  <div class="nav-logo">
-    <span class="t3-bracket">[</span>T3<span class="t3-bracket">]</span>
-    RESEARCH COLLECTIVE
-  </div>
-  <ul class="nav-links">
-    <li><a href="#research">Research</a></li>
-    <li><a href="#metrics">Energy</a></li>
-    <li><a href="#team">Team</a></li>
-    <li><a href="#publications">Publications</a></li>
-  </ul>
-  <button class="nav-cta">Apply Now</button>
-</nav>
+  people:[
+    {id:"elena-vasquez",name:"Elena Vásquez",role:"Principal Investigator — Robotics",tags:["VTOL Systems","Navigation","AI Integration"],projects:["quetzalcoatl"],bio:"Elena leads aerial robotics, overseeing all VTOL platform development from concept through flight testing."},
+    {id:"marcus-chen",name:"Marcus Chen",role:"Lead Engineer — Ground Systems",tags:["Sensor Fusion","Path Planning","Embedded Systems"],projects:["tlalock"],bio:"Marcus architects the ground vehicle stack — from wheel controllers to high-level mission planning. Expert in ROS2 and SLAM."},
+    {id:"sofia-reyes",name:"Dr. Sofia Reyes",role:"PhD Advisor — Fluid Dynamics",tags:["Hydrodynamics","Electrochemistry","Thermodynamics"],projects:["cipactli","tonatiuh"],bio:"Sofia bridges the underwater and energy programs, bringing fluid systems expertise to both the Cipactli UUV and the Tōnatiuh hydrogen architecture."},
+    {id:"ravi-patel",name:"Ravi Patel",role:"Research Engineer — Energy Systems",tags:["Electrolysis","Power Electronics","Systems Design"],projects:["tezcatlipoca","tonatiuh"],bio:"Ravi leads Tōnatiuh Reactor development and consults on power systems for the manipulator arm."},
+    {id:"nadia-torres",name:"Nadia Torres",role:"Systems Architect",tags:["Systems Integration","Platform Design","Testing"],projects:["cipactli","tezcatlipoca"],bio:"Nadia ensures all T3 platforms can interoperate. She designs integration interfaces and leads field testing."},
+    {id:"james-okafor",name:"James Okafor",role:"AI/ML Researcher",tags:["Object Detection","Computer Vision","Autonomy"],projects:["quetzalcoatl","tlalock"],bio:"James develops perception and decision-making systems across aerial and ground platforms."},
+  ],
 
-<!-- HERO -->
-<section id="hero">
-  <div class="hero-bg-orb orb1"></div>
-  <div class="hero-bg-orb orb2"></div>
-  <div class="hero-bg-orb orb3"></div>
+  businesses:[
+    {id:"aero",  icon:"◆",name:"T3 Aero",       tagline:"Autonomous Aviation",   color:"#00d4ff",desc:"Commercial VTOL platforms from the Quetzalcóatl research program. Payload delivery, aerial survey, and emergency response."},
+    {id:"ground",icon:"◇",name:"T3 Ground",      tagline:"Terrain Autonomy",      color:"#00ffc8",desc:"Ruggedized autonomous ground vehicles from the Tláloc program. Industrial inspection, logistics, and public safety."},
+    {id:"energy",icon:"⬡",name:"T3 Clean Energy",tagline:"Distributed Hydrogen",  color:"#f59e0b",desc:"Modular hydrogen production units from the Tōnatiuh Reactor for off-grid and industrial applications."},
+    {id:"marine",icon:"◈",name:"T3 Marine",      tagline:"Subsea Intelligence",   color:"#a78bfa",desc:"Underwater inspection and sensing from the Cipactli program for offshore and waterway clients."},
+  ],
 
-  <div class="hero-content">
-    <div class="hero-tag">Est. 2019 — New York, USA</div>
-    <h1 class="hero-title">
-      <span class="line3">T3 Research Collective</span>
-      <span class="line1">The Future of</span>
-      <span class="line2">Robotics & Energy</span>
-    </h1>
-    <p class="hero-desc">
-      Pioneering autonomous systems, next-generation energy infrastructure, and the convergence of machine intelligence with sustainable power at the frontier of human knowledge.
-    </p>
-    <div class="hero-buttons">
-      <a href="#research" class="btn-primary">Explore Research</a>
-      <a href="#publications" class="btn-ghost">View Publications</a>
-    </div>
-  </div>
+  sponsors:[
+    {name:"T3 Electronics",tagline:"Founding Sponsor"},
+  ],
+};
 
-  <div class="hero-stats">
-    <div class="stat-card">
-      <div class="stat-num">148</div>
-      <div class="stat-label">Active Projects</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-num">$2.4B</div>
-      <div class="stat-label">Funding Raised</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-num">312</div>
-      <div class="stat-label">Researchers</div>
-    </div>
-  </div>
+// ── STATUS CONFIG ───────────────────────────────────────────
+const SC = {
+  'active':               {color:'#00d4ff',bg:'rgba(0,212,255,0.07)',  label:'Active'},
+  'inactive-funding':     {color:'#f59e0b',bg:'rgba(245,158,11,0.07)', label:'Needs Funding'},
+  'inactive-researchers': {color:'#a78bfa',bg:'rgba(167,139,250,0.07)',label:'Needs Researchers'},
+  'inactive-resources':   {color:'#f97316',bg:'rgba(249,115,22,0.07)', label:'Needs Resources'},
+};
 
-  <div class="scroll-indicator">
-    <div class="scroll-line"></div>
-    <div class="scroll-text">Scroll</div>
-  </div>
-</section>
+// ── MATH HELPERS ────────────────────────────────────────────
+const toRad = d => d * Math.PI / 180;
 
-<!-- TICKER -->
-<div class="ticker-wrap">
-  <div class="ticker-track" id="ticker">
-    <span class="ticker-item"><span>◆</span> Autonomous Locomotion</span>
-    <span class="ticker-item"><span>◆</span> Solid-State Batteries</span>
-    <span class="ticker-item"><span>◆</span> Neural Robotics Interface</span>
-    <span class="ticker-item"><span>◆</span> Fusion Plasma Control</span>
-    <span class="ticker-item"><span>◆</span> Swarm Intelligence</span>
-    <span class="ticker-item"><span>◆</span> Hydrogen Storage Systems</span>
-    <span class="ticker-item"><span>◆</span> Exoskeletal Augmentation</span>
-    <span class="ticker-item"><span>◆</span> Perovskite Solar Arrays</span>
-    <span class="ticker-item"><span>◆</span> Autonomous Locomotion</span>
-    <span class="ticker-item"><span>◆</span> Solid-State Batteries</span>
-    <span class="ticker-item"><span>◆</span> Neural Robotics Interface</span>
-    <span class="ticker-item"><span>◆</span> Fusion Plasma Control</span>
-    <span class="ticker-item"><span>◆</span> Swarm Intelligence</span>
-    <span class="ticker-item"><span>◆</span> Hydrogen Storage Systems</span>
-    <span class="ticker-item"><span>◆</span> Exoskeletal Augmentation</span>
-    <span class="ticker-item"><span>◆</span> Perovskite Solar Arrays</span>
-  </div>
-</div>
+function wedgePath(cx,cy,r1,r2,aStart,aEnd){
+  const s1=toRad(aStart),e1=toRad(aEnd),lg=aEnd-aStart>180?1:0;
+  const cos=Math.cos,sin=Math.sin;
+  return[
+    `M${cx+r1*cos(s1)} ${cy+r1*sin(s1)}`,
+    `L${cx+r2*cos(s1)} ${cy+r2*sin(s1)}`,
+    `A${r2} ${r2} 0 ${lg} 1 ${cx+r2*cos(e1)} ${cy+r2*sin(e1)}`,
+    `L${cx+r1*cos(e1)} ${cy+r1*sin(e1)}`,
+    `A${r1} ${r1} 0 ${lg} 0 ${cx+r1*cos(s1)} ${cy+r1*sin(s1)} Z`
+  ].join(' ');
+}
 
-<!-- RESEARCH -->
-<section id="research">
-  <div class="section-container">
-    <div class="section-header">
-      <div>
-        <div class="section-label">Core Divisions</div>
-        <h2 class="section-title">Research Areas</h2>
+function curvePath(x1,y1,x2,y2){
+  const dx=x2-x1,dy=y2-y1;
+  const cx=(x1+x2)/2-dy*0.18,cy=(y1+y2)/2+dx*0.18;
+  return `M${x1} ${y1} Q${cx} ${cy} ${x2} ${y2}`;
+}
+
+// ──────────────────────────────────────────────────────────────
+// GTA WHEEL
+// ──────────────────────────────────────────────────────────────
+function GTAWheel({businesses, onClose}){
+  const [hov,setHov] = React.useState(null);
+
+  // Ring geometry
+  const W=520, CX=W/2, CY=W/2;
+  const R_INNER=96, R_OUTER=224, R_GAP=2.8, OFFSET=-90;
+
+  // 8 slots — businesses at cardinal+intercardinal positions evenly
+  const N=8;
+  // Spread businesses into slots 0,2,4,6 (top, right, bottom, left)
+  const BUS_SLOTS=[0,2,4,6];
+  const slots=Array.from({length:N},(_,i)=>{
+    const bi=BUS_SLOTS.indexOf(i);
+    return bi>=0?(businesses[bi]||null):null;
+  });
+
+  const hovBiz=hov!==null?slots[hov]:null;
+
+  React.useEffect(()=>{
+    const fn=e=>{if(e.key==='Escape')onClose();};
+    window.addEventListener('keydown',fn);
+    return()=>window.removeEventListener('keydown',fn);
+  },[]);
+
+  return(
+    <>
+      {/* Dark backdrop */}
+      <div onClick={onClose} style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.85)',
+        backdropFilter:'blur(6px)',zIndex:2000}}/>
+
+      {/* Wheel */}
+      <div style={{position:'fixed',top:'50%',left:'50%',
+        transform:'translate(-50%,-50%)',
+        opacity:1,
+        zIndex:2001,
+        display:'flex',flexDirection:'column',alignItems:'center',gap:0}}>
+
+        <svg width={W} height={W} viewBox={`0 0 ${W} ${W}`} style={{display:'block',overflow:'visible'}}>
+          <defs>
+            <filter id="fg1" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="8" result="b"/>
+              <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+            <filter id="fg2" x="-100%" y="-100%" width="300%" height="300%">
+              <feGaussianBlur stdDeviation="18" result="b"/>
+              <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+            <radialGradient id="cenGrad" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="rgba(0,212,255,0.12)"/>
+              <stop offset="100%" stopColor="rgba(4,6,14,0)"/>
+            </radialGradient>
+            <radialGradient id="outerGrad" cx="50%" cy="50%" r="50%">
+              <stop offset="82%" stopColor="transparent"/>
+              <stop offset="100%" stopColor="rgba(0,212,255,0.04)"/>
+            </radialGradient>
+          </defs>
+
+          {/* ── Thick outer shadow disc ── */}
+          <circle cx={CX} cy={CY} r={R_OUTER+32} fill="rgba(3,5,12,0.97)"/>
+          <circle cx={CX} cy={CY} r={R_OUTER+32} fill="url(#outerGrad)"/>
+          <circle cx={CX} cy={CY} r={R_OUTER+32} fill="none" stroke="rgba(0,212,255,0.05)" strokeWidth="1"/>
+
+          {/* ── Ring segments ── */}
+          {slots.map((slot,i)=>{
+            const a0=OFFSET+(360/N)*i, a1=a0+(360/N);
+            const am=(a0+a1)/2, amR=toRad(am);
+            const isHov=hov===i, hasBiz=!!slot;
+            const outerR=isHov&&hasBiz?R_OUTER+14:R_OUTER;
+            const innerR=isHov&&hasBiz?R_INNER-8:R_INNER;
+            // Icon position
+            const iconR=(innerR+outerR)/2;
+            const ix=CX+iconR*Math.cos(amR), iy=CY+iconR*Math.sin(amR);
+
+            return(
+              <g key={i} style={{cursor:hasBiz?'pointer':'default'}}
+                onMouseEnter={()=>hasBiz&&setHov(i)}
+                onMouseLeave={()=>setHov(null)}
+                onClick={e=>{e.stopPropagation();if(hasBiz)onClose();}}>
+
+                {/* Hover glow behind segment */}
+                {isHov&&hasBiz&&(
+                  <path d={wedgePath(CX,CY,R_INNER-18,R_OUTER+24,a0+R_GAP/2,a1-R_GAP/2)}
+                    fill={`${slot.color}15`} filter="url(#fg2)"/>
+                )}
+
+                {/* Main segment */}
+                <path d={wedgePath(CX,CY,innerR,outerR,a0+R_GAP/2,a1-R_GAP/2)}
+                  fill={
+                    isHov&&hasBiz ? `${slot.color}22`
+                    : hasBiz      ? 'rgba(14,19,35,0.97)'
+                                  : 'rgba(8,11,20,0.9)'}
+                  stroke={
+                    isHov&&hasBiz ? slot.color
+                    : hasBiz      ? 'rgba(0,212,255,0.11)'
+                                  : 'rgba(255,255,255,0.025)'}
+                  strokeWidth={isHov?2:1}
+                  style={{transition:'fill 0.15s'}}
+                />
+
+                {/* Outer arc rim highlight on hover */}
+                {isHov&&hasBiz&&(
+                  <path d={wedgePath(CX,CY,R_OUTER+4,R_OUTER+14,a0+R_GAP/2,a1-R_GAP/2)}
+                    fill={`${slot.color}44`} stroke={slot.color} strokeWidth="1"
+                    filter="url(#fg1)"/>
+                )}
+
+                {/* Inner arc rim on hover */}
+                {isHov&&hasBiz&&(
+                  <path d={wedgePath(CX,CY,R_INNER-8,R_INNER-2,a0+R_GAP/2,a1-R_GAP/2)}
+                    fill={`${slot.color}55`}/>
+                )}
+
+                {/* Icon */}
+                {hasBiz?(
+                  <text x={ix} y={iy} textAnchor="middle" dominantBaseline="central"
+                    fill={isHov?slot.color:'#3d5270'}
+                    fontSize={isHov?32:25}
+                    fontFamily="'Orbitron',monospace"
+                    filter={isHov?'url(#fg1)':undefined}
+                    style={{userSelect:'none',transition:'fill 0.15s,font-size 0.1s'}}>
+                    {slot.icon}
+                  </text>
+                ):(
+                  <circle cx={ix} cy={iy} r="4" fill="rgba(0,212,255,0.05)"/>
+                )}
+
+                {/* Name label INSIDE segment near outer edge */}
+                {hasBiz&&(()=>{
+                  const lr=R_OUTER-20;
+                  const lx2=CX+lr*Math.cos(amR), ly2=CY+lr*Math.sin(amR);
+                  return(
+                    <text x={lx2} y={ly2} textAnchor="middle" dominantBaseline="central"
+                      fill={isHov?slot.color:'#253040'}
+                      fontSize="7.5" fontFamily="'Orbitron',monospace" letterSpacing="1.5"
+                      style={{userSelect:'none',transition:'fill 0.15s'}}>
+                      {slot.name.replace('T3 ','').toUpperCase()}
+                    </text>
+                  );
+                })()}
+              </g>
+            );
+          })}
+
+          {/* ── Inner hole ── */}
+          <circle cx={CX} cy={CY} r={R_INNER} fill="rgba(3,5,12,0.99)"/>
+          <circle cx={CX} cy={CY} r={R_INNER} fill="url(#cenGrad)"/>
+          <circle cx={CX} cy={CY} r={R_INNER} fill="none" stroke="rgba(0,212,255,0.13)" strokeWidth="1.5"/>
+
+          {/* ── Centre info ── */}
+          {hovBiz?(
+            <>
+              <text x={CX} y={CY-26} textAnchor="middle" dominantBaseline="central"
+                fill={hovBiz.color} fontSize="36" fontFamily="'Orbitron',monospace"
+                filter="url(#fg1)" style={{userSelect:'none'}}>{hovBiz.icon}</text>
+              <text x={CX} y={CY+18} textAnchor="middle"
+                fill="#d0dff0" fontSize="10" fontFamily="'Orbitron',monospace" fontWeight="700" letterSpacing="2"
+                style={{userSelect:'none'}}>{hovBiz.name.toUpperCase()}</text>
+              <text x={CX} y={CY+35} textAnchor="middle"
+                fill={hovBiz.color} fontSize="7.5" fontFamily="'Space Mono',monospace" opacity="0.7" letterSpacing="1.5"
+                style={{userSelect:'none'}}>{hovBiz.tagline.toUpperCase()}</text>
+            </>
+          ):(
+            <>
+              <text x={CX} y={CY-10} textAnchor="middle"
+                fill="#00d4ff" fontSize="24" fontFamily="'Orbitron',monospace" fontWeight="900" letterSpacing="4"
+                filter="url(#fg1)" style={{userSelect:'none'}}>T3</text>
+              <text x={CX} y={CY+14} textAnchor="middle"
+                fill="#1e2e3e" fontSize="7.5" fontFamily="'Space Mono',monospace" letterSpacing="4"
+                style={{userSelect:'none'}}>BUSINESSES</text>
+            </>
+          )}
+        </svg>
+
+        {/* Description strip docked below wheel */}
+        <div style={{width:480,padding:'14px 28px',
+          background:'rgba(5,7,15,0.97)',
+          border:'1px solid rgba(0,212,255,0.08)',borderTop:'2px solid rgba(0,212,255,0.06)',
+          textAlign:'center',marginTop:-8,minHeight:56,
+          display:'flex',alignItems:'center',justifyContent:'center',gap:14}}>
+          {hovBiz?(
+            <>
+              <span style={{fontFamily:"'Orbitron',monospace",fontSize:9,letterSpacing:2,
+                color:hovBiz.color,whiteSpace:'nowrap',flexShrink:0}}>{hovBiz.tagline}</span>
+              <span style={{width:1,height:16,background:'rgba(0,212,255,0.12)',flexShrink:0}}/>
+              <p style={{fontFamily:"'Rajdhani',sans-serif",fontSize:13.5,fontWeight:300,
+                color:'#5a7090',lineHeight:1.5,textAlign:'left'}}>{hovBiz.desc}</p>
+            </>
+          ):(
+            <p style={{fontFamily:"'Space Mono',monospace",fontSize:8,letterSpacing:3,
+              color:'#1e2e3e'}}>HOVER A SEGMENT</p>
+          )}
+        </div>
+
+        {/* ESC hint */}
+        <div style={{marginTop:10,fontFamily:"'Space Mono',monospace",fontSize:7.5,
+          letterSpacing:2,color:'#1a2430'}}>ESC or CLICK OUTSIDE TO CLOSE</div>
       </div>
-      <div class="section-count">02</div>
-    </div>
-    <div class="research-grid">
+    </>
+  );
+}
 
-      <!-- LARGE CARD -->
-      <div class="research-card large">
-        <div class="large-inner">
-          <div>
-            <div class="card-num">Division 01 — Flagship</div>
-            <h3 class="card-title">Adaptive Autonomous Robotics</h3>
-            <p class="card-desc">
-              Developing next-gen robots that learn, adapt, and operate in unstructured real-world environments. Our systems integrate reinforcement learning with bio-inspired mechanical design to achieve unprecedented mobility and task versatility.
-            </p>
-            <div>
-              <span class="card-tag">Locomotion</span>
-              <span class="card-tag">RL Systems</span>
-              <span class="card-tag red">Manipulation</span>
-              <span class="card-tag purple">Perception</span>
+// ──────────────────────────────────────────────────────────────
+// NETWORK GRAPH
+// ──────────────────────────────────────────────────────────────
+function NetworkGraph({data,selected,onSelect,showPeople,hovPerson,onHovPerson,hlProjects}){
+  const [hov,setHov]=React.useState(null);
+  const NR=28, PR=14;
+
+  const personPos=React.useMemo(()=>{
+    const pos={},byProj={};
+    data.people.forEach(p=>{const pid=p.projects[0];if(pid){if(!byProj[pid])byProj[pid]=[];byProj[pid].push(p.id);}});
+    data.people.forEach(person=>{
+      const proj=data.projects.find(p=>p.id===person.projects[0]);
+      if(!proj) return;
+      const sibs=byProj[person.projects[0]]||[],idx=sibs.indexOf(person.id),total=sibs.length;
+      const a0=-2.4,a1=-0.7;
+      const angle=total>1?a0+(a1-a0)*idx/(total-1):(a0+a1)/2;
+      pos[person.id]={x:proj.x+Math.cos(angle)*68,y:proj.y+Math.sin(angle)*68};
+    });
+    return pos;
+  },[data]);
+
+  const edges=React.useMemo(()=>{
+    const seen=new Set(),res=[];
+    data.projects.forEach(p=>p.connections.forEach(cid=>{
+      const key=[p.id,cid].sort().join('|');
+      if(seen.has(key))return;seen.add(key);
+      const t=data.projects.find(q=>q.id===cid);
+      if(t)res.push({from:p,to:t});
+    }));
+    return res;
+  },[data]);
+
+  const personEdges=React.useMemo(()=>{
+    if(!showPeople)return[];
+    return data.people.flatMap(person=>{
+      const pp=personPos[person.id];if(!pp)return[];
+      return person.projects.map(pid=>{
+        const proj=data.projects.find(p=>p.id===pid);
+        return proj?{person,proj,pp}:null;
+      }).filter(Boolean);
+    });
+  },[data,showPeople,personPos]);
+
+  return(
+    <svg viewBox="0 0 800 570" style={{width:'100%',height:'100%',display:'block'}}
+      onClick={()=>onSelect(null)}>
+      <defs>
+        <pattern id="gp" width="50" height="50" patternUnits="userSpaceOnUse">
+          <path d="M50 0L0 0 0 50" fill="none" stroke="rgba(0,212,255,0.04)" strokeWidth="0.5"/>
+        </pattern>
+        <radialGradient id="bgr" cx="50%" cy="50%" r="55%">
+          <stop offset="0%" stopColor="rgba(0,212,255,0.05)"/>
+          <stop offset="100%" stopColor="transparent"/>
+        </radialGradient>
+      </defs>
+      <rect width="800" height="570" fill="url(#gp)"/>
+      <ellipse cx="400" cy="285" rx="380" ry="260" fill="url(#bgr)"/>
+
+      {/* Edges */}
+      {edges.map((e,i)=>{
+        const selEdge=selected&&(selected.id===e.from.id||selected.id===e.to.id
+          ||(hlProjects?.includes(e.from.id)&&hlProjects?.includes(e.to.id)));
+        const both=e.from.status==='active'&&e.to.status==='active';
+        return<path key={i} d={curvePath(e.from.x,e.from.y,e.to.x,e.to.y)} fill="none"
+          stroke={selEdge?'rgba(0,212,255,0.55)':'rgba(0,212,255,0.08)'}
+          strokeWidth={selEdge?1.5:0.8} strokeDasharray={both?'':'5 4'}/>;
+      })}
+
+      {/* Person edges */}
+      {personEdges.map((e,i)=>{
+        const h=hovPerson===e.person.id;
+        return<line key={i} x1={e.proj.x} y1={e.proj.y} x2={e.pp.x} y2={e.pp.y}
+          stroke={h?'rgba(0,212,255,0.45)':'rgba(0,212,255,0.09)'} strokeWidth={h?1.5:0.6} strokeDasharray="3 4"/>;
+      })}
+
+      {/* Project nodes */}
+      {data.projects.map(proj=>{
+        const s=SC[proj.status],isSel=selected?.id===proj.id,isHov=hov===proj.id;
+        const isHl=hlProjects?.includes(proj.id),active=isSel||isHov||isHl;
+        const dim=s.label!=='Active'&&!active;
+        return(
+          <g key={proj.id} transform={`translate(${proj.x},${proj.y})`} style={{cursor:'pointer'}}
+            onClick={ev=>{ev.stopPropagation();onSelect(proj);}}
+            onMouseEnter={()=>setHov(proj.id)} onMouseLeave={()=>setHov(null)}>
+            {active&&<circle r={NR+12} fill={s.bg} stroke={s.color} strokeWidth="1" opacity="0.7"/>}
+            {dim&&<circle r={NR+6} fill="none" stroke={s.color} strokeWidth="0.8" strokeDasharray="4 3" opacity="0.3"/>}
+            <circle r={NR} fill="rgba(13,18,32,0.97)" stroke={s.color} strokeWidth={isSel?2.5:1.5} opacity={dim?0.55:1}/>
+            <text y="-3" textAnchor="middle" dominantBaseline="middle"
+              fill={dim?s.color+'44':s.color} fontSize="13" fontFamily="'Orbitron',monospace"
+              style={{userSelect:'none'}}>{proj.icon}</text>
+            {dim&&<text y="9" textAnchor="middle" fill={s.color} fontSize="5.5"
+              opacity="0.6" fontFamily="'Space Mono',monospace" style={{userSelect:'none'}}>LOCKED</text>}
+            <text y={NR+13} textAnchor="middle"
+              fill={dim?'#1e2a38':active?'#d8e8f5':'#4a6070'}
+              fontSize="7" fontFamily="'Orbitron',monospace" letterSpacing="0.8"
+              style={{userSelect:'none'}}>{proj.name}</text>
+            <text y={NR+22} textAnchor="middle" fill={dim?'#141e28':'#243040'}
+              fontSize="5.5" fontFamily="'Space Mono',monospace" style={{userSelect:'none'}}>
+              {proj.segment.toUpperCase()}
+            </text>
+          </g>
+        );
+      })}
+
+      {/* Person nodes */}
+      {showPeople&&data.people.map(person=>{
+        const pp=personPos[person.id];if(!pp)return null;
+        const h=hovPerson===person.id;
+        return(
+          <g key={person.id} transform={`translate(${pp.x},${pp.y})`} style={{cursor:'pointer'}}
+            onMouseEnter={()=>onHovPerson(person.id)} onMouseLeave={()=>onHovPerson(null)}
+            onClick={ev=>{ev.stopPropagation();onSelect({_type:'person',...person});}}>
+            {h&&<circle r={PR+6} fill="rgba(0,212,255,0.05)" stroke="rgba(0,212,255,0.2)" strokeWidth="1"/>}
+            <circle r={PR} fill="rgba(10,14,26,0.97)" stroke={h?'#00d4ff':'rgba(0,212,255,0.2)'} strokeWidth="1"/>
+            <text y="0" textAnchor="middle" dominantBaseline="central"
+              fill={h?'#00d4ff':'#4a6070'} fontSize="8" fontFamily="'Orbitron',monospace" fontWeight="700"
+              style={{userSelect:'none'}}>{person.name.split(' ').map(n=>n[0]).join('')}</text>
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
+// ──────────────────────────────────────────────────────────────
+// SIDE PANELS
+// ──────────────────────────────────────────────────────────────
+function ProjectPanel({project,data,onClose,onPerson}){
+  const s=SC[project.status];
+  const researchers=project.researchers.map(rid=>data.people.find(p=>p.id===rid)).filter(Boolean);
+  return(
+    <div style={{position:'absolute',top:0,right:0,width:360,height:'100%',
+      background:'rgba(6,9,18,0.99)',borderLeft:`1px solid ${s.color}25`,
+      display:'flex',flexDirection:'column',animation:'slideR 0.2s ease'}}>
+      <div style={{padding:'14px 18px',borderBottom:`1px solid ${s.color}15`,
+        display:'flex',alignItems:'center',gap:12,flexShrink:0}}>
+        <div style={{width:36,height:36,border:`1px solid ${s.color}55`,display:'flex',
+          alignItems:'center',justifyContent:'center',fontSize:16,color:s.color,
+          background:s.bg,flexShrink:0}}>{project.icon}</div>
+        <div style={{flex:1}}>
+          <div style={{fontFamily:"'Orbitron',monospace",fontSize:11.5,fontWeight:700,letterSpacing:1.5,color:'#dde8f5'}}>{project.name}</div>
+          <div style={{fontFamily:"'Space Mono',monospace",fontSize:7.5,color:'#243040',letterSpacing:1,marginTop:2}}>{project.subtitle}</div>
+        </div>
+        <button onClick={onClose} style={{background:'none',border:'none',color:'#2a3a4e',cursor:'pointer',fontSize:20,lineHeight:1}}>×</button>
+      </div>
+
+      <div style={{flex:1,overflowY:'auto',padding:'16px'}}>
+        <div style={{display:'inline-flex',alignItems:'center',gap:6,padding:'3px 11px',
+          border:`1px solid ${s.color}35`,background:s.bg,color:s.color,
+          fontFamily:"'Space Mono',monospace",fontSize:8.5,letterSpacing:1,marginBottom:16}}>
+          <span style={{width:5,height:5,borderRadius:'50%',background:'currentColor',
+            animation:'pulse 2s infinite'}}/>
+          {s.label} · {project.segment}
+        </div>
+
+        {project.status==='active'?(
+          <>
+            <p style={{fontSize:13,fontWeight:300,lineHeight:1.85,color:'#5a7090',marginBottom:20}}>{project.description}</p>
+            <div style={{fontFamily:"'Orbitron',monospace",fontSize:8,letterSpacing:3,color:'#1e2e3e',
+              textTransform:'uppercase',marginBottom:10}}>Capabilities</div>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:5,marginBottom:20}}>
+              {project.specs.map((sp,i)=>(
+                <div key={i} style={{padding:'7px 9px',border:'1px solid rgba(0,212,255,0.07)',
+                  background:'rgba(0,0,0,0.2)',display:'flex',alignItems:'center',gap:5}}>
+                  <span style={{width:3,height:3,background:'#00d4ff',flexShrink:0}}/>
+                  <span style={{fontFamily:"'Space Mono',monospace",fontSize:7.5,color:'#5a7090'}}>{sp}</span>
+                </div>
+              ))}
             </div>
+            {researchers.length>0&&<>
+              <div style={{fontFamily:"'Orbitron',monospace",fontSize:8,letterSpacing:3,color:'#1e2e3e',
+                textTransform:'uppercase',marginBottom:10}}>Research Team</div>
+              {researchers.map(r=>(
+                <button key={r.id} onClick={()=>onPerson({_type:'person',...r})}
+                  style={{display:'flex',alignItems:'center',gap:10,padding:'9px 11px',width:'100%',
+                    background:'rgba(0,0,0,0.18)',border:'1px solid rgba(0,212,255,0.07)',
+                    cursor:'pointer',textAlign:'left',marginBottom:5,transition:'border-color 0.18s'}}
+                  onMouseEnter={e=>e.currentTarget.style.borderColor='rgba(0,212,255,0.28)'}
+                  onMouseLeave={e=>e.currentTarget.style.borderColor='rgba(0,212,255,0.07)'}>
+                  <div style={{width:26,height:26,border:'1px solid rgba(0,212,255,0.25)',
+                    display:'flex',alignItems:'center',justifyContent:'center',
+                    fontFamily:"'Orbitron',monospace",fontSize:9,color:'#00d4ff',flexShrink:0}}>{r.name[0]}</div>
+                  <div style={{flex:1}}>
+                    <div style={{fontFamily:"'Orbitron',monospace",fontSize:9.5,letterSpacing:1,color:'#dde8f5'}}>{r.name}</div>
+                    <div style={{fontFamily:"'Space Mono',monospace",fontSize:7,color:'#243040',marginTop:1}}>{r.role}</div>
+                  </div>
+                  <span style={{color:'#243040',fontSize:11}}>▶</span>
+                </button>
+              ))}
+            </>}
+          </>
+        ):(
+          <>
+            <div style={{fontFamily:"'Orbitron',monospace",fontSize:8,letterSpacing:3,color:s.color,
+              textTransform:'uppercase',opacity:0.7,marginBottom:8}}>Our Vision</div>
+            <p style={{fontSize:13,fontWeight:300,lineHeight:1.85,color:'#5a7090',marginBottom:20}}>{project.vision}</p>
+            <div style={{fontFamily:"'Orbitron',monospace",fontSize:8,letterSpacing:3,color:'#1e2e3e',
+              textTransform:'uppercase',marginBottom:10}}>What's Blocking Us</div>
+            {project.blockers.map((b,i)=>(
+              <div key={i} style={{display:'flex',alignItems:'flex-start',gap:8,padding:'8px 10px',
+                border:`1px solid ${s.color}1a`,background:s.bg,marginBottom:5}}>
+                <span style={{color:s.color,fontSize:9,flexShrink:0,marginTop:1}}>◆</span>
+                <span style={{fontFamily:"'Space Mono',monospace",fontSize:8.5,color:'#5a7090'}}>{b}</span>
+              </div>
+            ))}
+            <div style={{border:`1px solid ${s.color}40`,background:s.bg,padding:16,marginTop:16}}>
+              <div style={{fontFamily:"'Orbitron',monospace",fontSize:8,letterSpacing:3,color:s.color,
+                textTransform:'uppercase',marginBottom:6}}>Sponsor This Project</div>
+              <p style={{fontSize:13,fontWeight:300,lineHeight:1.7,color:'#5a7090',marginBottom:14}}>{project.sponsorOpportunity}</p>
+              <button style={{fontFamily:"'Orbitron',monospace",fontSize:8.5,letterSpacing:2,
+                textTransform:'uppercase',padding:'10px 18px',background:s.bg,
+                border:`1px solid ${s.color}`,color:s.color,cursor:'pointer',width:'100%',
+                clipPath:'polygon(8px 0,100% 0,calc(100% - 8px) 100%,0 100%)'}}>
+                Inquire About Sponsorship ▶
+              </button>
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function PersonPanel({person,data,onClose,onProject}){
+  const projects=person.projects.map(pid=>data.projects.find(p=>p.id===pid)).filter(Boolean);
+  return(
+    <div style={{position:'absolute',top:0,right:0,width:360,height:'100%',
+      background:'rgba(6,9,18,0.99)',borderLeft:'1px solid rgba(0,212,255,0.1)',
+      display:'flex',flexDirection:'column',animation:'slideR 0.2s ease'}}>
+      <div style={{padding:'14px 18px',borderBottom:'1px solid rgba(0,212,255,0.07)',
+        display:'flex',alignItems:'center',gap:12,flexShrink:0}}>
+        <div style={{width:36,height:36,border:'1px solid rgba(0,212,255,0.28)',display:'flex',
+          alignItems:'center',justifyContent:'center',fontFamily:"'Orbitron',monospace",
+          fontSize:14,fontWeight:700,color:'#00d4ff',background:'rgba(0,212,255,0.06)',flexShrink:0}}>
+          {person.name[0]}
+        </div>
+        <div style={{flex:1}}>
+          <div style={{fontFamily:"'Orbitron',monospace",fontSize:11.5,fontWeight:700,letterSpacing:1.5,color:'#dde8f5'}}>{person.name}</div>
+          <div style={{fontFamily:"'Space Mono',monospace",fontSize:7.5,color:'#243040',letterSpacing:1,marginTop:2}}>{person.role}</div>
+        </div>
+        <button onClick={onClose} style={{background:'none',border:'none',color:'#2a3a4e',cursor:'pointer',fontSize:20,lineHeight:1}}>×</button>
+      </div>
+      <div style={{flex:1,overflowY:'auto',padding:'16px'}}>
+        <div style={{display:'flex',flexWrap:'wrap',gap:5,marginBottom:16}}>
+          {person.tags.map((t,i)=>(
+            <span key={i} style={{fontFamily:"'Space Mono',monospace",fontSize:7.5,letterSpacing:1,
+              padding:'3px 7px',border:'1px solid rgba(0,212,255,0.1)',color:'#2a3a4e',
+              background:'rgba(0,212,255,0.03)'}}>{t}</span>
+          ))}
+        </div>
+        {person.bio&&<p style={{fontSize:13,fontWeight:300,lineHeight:1.85,color:'#5a7090',marginBottom:20}}>{person.bio}</p>}
+        <div style={{fontFamily:"'Orbitron',monospace",fontSize:8,letterSpacing:3,color:'#1e2e3e',
+          textTransform:'uppercase',marginBottom:10}}>Active Projects</div>
+        {projects.map(p=>{
+          const s=SC[p.status];
+          return(
+            <button key={p.id} onClick={()=>onProject(p)}
+              style={{display:'flex',alignItems:'center',gap:10,padding:'10px',width:'100%',
+                background:'rgba(0,0,0,0.18)',border:`1px solid ${s.color}18`,
+                cursor:'pointer',textAlign:'left',marginBottom:5,transition:'border-color 0.18s'}}
+              onMouseEnter={e=>e.currentTarget.style.borderColor=s.color+'44'}
+              onMouseLeave={e=>e.currentTarget.style.borderColor=s.color+'18'}>
+              <span style={{fontSize:14,color:s.color,flexShrink:0}}>{p.icon}</span>
+              <div style={{flex:1}}>
+                <div style={{fontFamily:"'Orbitron',monospace",fontSize:9.5,letterSpacing:1,color:'#dde8f5'}}>{p.name}</div>
+                <div style={{fontFamily:"'Space Mono',monospace",fontSize:7,color:'#243040',marginTop:1}}>{p.subtitle}</div>
+              </div>
+              <span style={{color:'#243040',fontSize:11}}>▶</span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function PeopleDirectory({data,onSelect,onClose}){
+  return(
+    <div style={{position:'absolute',top:0,left:0,width:290,height:'100%',
+      background:'rgba(6,9,18,0.99)',borderRight:'1px solid rgba(0,212,255,0.08)',
+      display:'flex',flexDirection:'column',animation:'slideL 0.2s ease'}}>
+      <div style={{padding:'14px 18px',borderBottom:'1px solid rgba(0,212,255,0.07)',
+        display:'flex',justifyContent:'space-between',alignItems:'center',flexShrink:0}}>
+        <div style={{fontFamily:"'Orbitron',monospace",fontSize:9,letterSpacing:3,color:'rgba(0,212,255,0.4)'}}>TEAM DIRECTORY</div>
+        <button onClick={onClose} style={{background:'none',border:'none',color:'#2a3a4e',cursor:'pointer',fontSize:20}}>×</button>
+      </div>
+      <div style={{flex:1,overflowY:'auto',padding:'8px'}}>
+        {data.people.map(person=>{
+          const projs=person.projects.map(pid=>data.projects.find(p=>p.id===pid)).filter(Boolean);
+          return(
+            <button key={person.id} onClick={()=>onSelect({_type:'person',...person})}
+              style={{width:'100%',textAlign:'left',background:'rgba(0,0,0,0.14)',
+                border:'1px solid rgba(0,212,255,0.05)',padding:'11px',marginBottom:4,
+                cursor:'pointer',transition:'all 0.15s'}}
+              onMouseEnter={e=>{e.currentTarget.style.borderColor='rgba(0,212,255,0.18)';e.currentTarget.style.background='rgba(0,212,255,0.03)';}}
+              onMouseLeave={e=>{e.currentTarget.style.borderColor='rgba(0,212,255,0.05)';e.currentTarget.style.background='rgba(0,0,0,0.14)';}}>
+              <div style={{display:'flex',alignItems:'center',gap:9,marginBottom:7}}>
+                <div style={{width:24,height:24,border:'1px solid rgba(0,212,255,0.2)',
+                  display:'flex',alignItems:'center',justifyContent:'center',
+                  fontFamily:"'Orbitron',monospace",fontSize:8,color:'#00d4ff',flexShrink:0}}>{person.name[0]}</div>
+                <div>
+                  <div style={{fontFamily:"'Orbitron',monospace",fontSize:9,letterSpacing:1,color:'#dde8f5'}}>{person.name}</div>
+                  <div style={{fontFamily:"'Space Mono',monospace",fontSize:7,color:'#243040',marginTop:1}}>{person.role}</div>
+                </div>
+              </div>
+              <div style={{display:'flex',gap:4,flexWrap:'wrap',paddingLeft:33}}>
+                {projs.map(p=>{const s=SC[p.status];return(
+                  <span key={p.id} style={{fontFamily:"'Space Mono',monospace",fontSize:7,
+                    color:s.color,padding:'2px 5px',border:`1px solid ${s.color}28`,background:s.bg}}>
+                    {p.icon} {p.name}
+                  </span>
+                );})}
+              </div>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ──────────────────────────────────────────────────────────────
+// LEGEND + SPONSOR
+// ──────────────────────────────────────────────────────────────
+function Legend(){
+  return(
+    <div style={{position:'absolute',top:14,right:14,padding:'10px 13px',
+      background:'rgba(5,7,15,0.92)',border:'1px solid rgba(0,212,255,0.07)',
+      backdropFilter:'blur(8px)'}}>
+      <div style={{fontFamily:"'Space Mono',monospace",fontSize:7,letterSpacing:2.5,
+        color:'#1e2e3e',textTransform:'uppercase',marginBottom:8}}>Node Status</div>
+      {Object.entries(SC).map(([k,v])=>{
+        const cnt=DATA.projects.filter(p=>p.status===k).length;
+        return(
+          <div key={k} style={{display:'flex',alignItems:'center',gap:7,marginBottom:5}}>
+            <div style={{width:7,height:7,borderRadius:'50%',background:v.color,flexShrink:0}}/>
+            <span style={{fontFamily:"'Space Mono',monospace",fontSize:7,color:'#2a3a4e',flex:1}}>{v.label}</span>
+            <span style={{fontFamily:"'Space Mono',monospace",fontSize:7,color:v.color,opacity:0.7}}>{cnt}</span>
           </div>
-          <div class="large-visual">
-            <svg viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg" width="220" height="220">
-              <defs>
-                <radialGradient id="rg1" cx="50%" cy="50%" r="50%">
-                  <stop offset="0%" stop-color="#00f5c8" stop-opacity="0.15"/>
-                  <stop offset="100%" stop-color="#00f5c8" stop-opacity="0"/>
-                </radialGradient>
-              </defs>
-              <circle cx="120" cy="120" r="100" fill="url(#rg1)"/>
-              <circle cx="120" cy="120" r="100" fill="none" stroke="rgba(0,245,200,0.15)" stroke-width="1" stroke-dasharray="4 6"/>
-              <circle cx="120" cy="120" r="70" fill="none" stroke="rgba(0,245,200,0.2)" stroke-width="1"/>
-              <circle cx="120" cy="120" r="40" fill="none" stroke="rgba(0,245,200,0.3)" stroke-width="1.5"/>
-              <!-- Robot figure simplified -->
-              <rect x="102" y="80" width="36" height="28" rx="4" fill="none" stroke="#00f5c8" stroke-width="1.5"/>
-              <circle cx="120" cy="94" r="8" fill="none" stroke="#00f5c8" stroke-width="1.5"/>
-              <rect x="106" y="108" width="28" height="36" rx="3" fill="none" stroke="#00f5c8" stroke-width="1.5"/>
-              <rect x="90" y="110" width="14" height="26" rx="3" fill="none" stroke="#7b61ff" stroke-width="1.5"/>
-              <rect x="136" y="110" width="14" height="26" rx="3" fill="none" stroke="#7b61ff" stroke-width="1.5"/>
-              <rect x="108" y="144" width="12" height="22" rx="3" fill="none" stroke="#00f5c8" stroke-width="1.5"/>
-              <rect x="120" y="144" width="12" height="22" rx="3" fill="none" stroke="#00f5c8" stroke-width="1.5"/>
-              <!-- scan lines -->
-              <line x1="20" y1="94" x2="100" y2="94" stroke="rgba(0,245,200,0.3)" stroke-width="1" stroke-dasharray="2 4"/>
-              <line x1="140" y1="94" x2="220" y2="94" stroke="rgba(0,245,200,0.3)" stroke-width="1" stroke-dasharray="2 4"/>
-              <circle cx="120" cy="94" r="2" fill="#00f5c8">
-                <animate attributeName="opacity" values="1;0;1" dur="1.5s" repeatCount="indefinite"/>
-              </circle>
-            </svg>
-          </div>
-        </div>
-      </div>
-
-      <div class="research-card">
-        <div class="card-icon">
-          <svg viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <polygon points="26,4 48,16 48,36 26,48 4,36 4,16" stroke="#00f5c8" stroke-width="1.5" fill="rgba(0,245,200,0.05)"/>
-            <polygon points="26,14 38,20 38,32 26,38 14,32 14,20" stroke="rgba(0,245,200,0.4)" stroke-width="1" fill="none"/>
-            <circle cx="26" cy="26" r="5" fill="#00f5c8" opacity="0.8"/>
-          </svg>
-        </div>
-        <div class="card-num">Division 02</div>
-        <h3 class="card-title">Fusion Energy Systems</h3>
-        <p class="card-desc">AI-driven plasma control and real-time instability prediction for compact tokamak reactors targeting commercial viability by 2032.</p>
-        <span class="card-tag">Plasma Physics</span>
-        <span class="card-tag red">Tokamak</span>
-      </div>
-
-      <div class="research-card">
-        <div class="card-icon">
-          <svg viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="6" y="6" width="40" height="40" rx="3" stroke="#ff4d6d" stroke-width="1.5" fill="rgba(255,77,109,0.05)"/>
-            <line x1="6" y1="26" x2="46" y2="26" stroke="rgba(255,77,109,0.3)" stroke-width="1"/>
-            <polyline points="6,36 16,20 24,30 32,16 46,28" stroke="#ff4d6d" stroke-width="2" fill="none"/>
-          </svg>
-        </div>
-        <div class="card-num">Division 03</div>
-        <h3 class="card-title">Swarm Intelligence</h3>
-        <p class="card-desc">Emergent coordination protocols for thousand-unit robotic swarms in disaster response, infrastructure inspection, and precision agriculture.</p>
-        <span class="card-tag red">Coordination</span>
-        <span class="card-tag purple">Multi-Agent</span>
-      </div>
-
-      <div class="research-card">
-        <div class="card-icon">
-          <svg viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="26" cy="26" r="20" stroke="#7b61ff" stroke-width="1.5" fill="rgba(123,97,255,0.05)"/>
-            <circle cx="26" cy="26" r="8" stroke="#7b61ff" stroke-width="1.5" fill="rgba(123,97,255,0.15)"/>
-            <line x1="26" y1="6" x2="26" y2="18" stroke="rgba(123,97,255,0.5)" stroke-width="1.5"/>
-            <line x1="26" y1="34" x2="26" y2="46" stroke="rgba(123,97,255,0.5)" stroke-width="1.5"/>
-            <line x1="6" y1="26" x2="18" y2="26" stroke="rgba(123,97,255,0.5)" stroke-width="1.5"/>
-            <line x1="34" y1="26" x2="46" y2="26" stroke="rgba(123,97,255,0.5)" stroke-width="1.5"/>
-          </svg>
-        </div>
-        <div class="card-num">Division 04</div>
-        <h3 class="card-title">Solid-State Energy Storage</h3>
-        <p class="card-desc">Developing ceramic electrolyte matrices for 4x density improvement over lithium-ion with complete elimination of thermal runaway risk.</p>
-        <span class="card-tag purple">Batteries</span>
-        <span class="card-tag">Materials</span>
-      </div>
-
-      <div class="research-card">
-        <div class="card-icon">
-          <svg viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M26 8 L40 18 L40 34 L26 44 L12 34 L12 18 Z" stroke="#f5c400" stroke-width="1.5" fill="rgba(245,196,0,0.05)"/>
-            <polyline points="20,24 24,20 28,26 32,22" stroke="#f5c400" stroke-width="2" fill="none"/>
-            <circle cx="20" cy="24" r="2.5" fill="#f5c400"/>
-            <circle cx="32" cy="22" r="2.5" fill="#f5c400"/>
-          </svg>
-        </div>
-        <div class="card-num">Division 05</div>
-        <h3 class="card-title">Neural Control Interfaces</h3>
-        <p class="card-desc">High-bandwidth bidirectional brain-machine interfaces enabling seamless teleoperation of robotic systems with sub-10ms latency.</p>
-        <span class="card-tag">BMI</span>
-        <span class="card-tag red">Latency</span>
-      </div>
-
+        );
+      })}
     </div>
-  </div>
-</section>
+  );
+}
 
-<!-- METRICS -->
-<section id="metrics">
-  <div class="section-header" style="padding: 0 48px; border-bottom: 1px solid var(--border);">
-    <div>
-      <div class="section-label">Performance Data</div>
-      <h2 class="section-title">Energy Metrics</h2>
+function SponsorBadge(){
+  if(!DATA.sponsors.length) return null;
+  return(
+    <div style={{position:'absolute',bottom:18,left:20,display:'flex',alignItems:'center',
+      gap:10,pointerEvents:'none',userSelect:'none'}}>
+      <span style={{fontFamily:"'Space Mono',monospace",fontSize:7,letterSpacing:2,
+        color:'#141e28',textTransform:'uppercase'}}>Sponsored by</span>
+      {DATA.sponsors.map((sp,i)=>(
+        <React.Fragment key={i}>
+          <span style={{fontFamily:"'Orbitron',monospace",fontSize:9,letterSpacing:2,
+            color:'#1e2e3e',fontWeight:700}}>{sp.name}</span>
+          <span style={{fontFamily:"'Space Mono',monospace",fontSize:7,
+            color:'#0e1820',letterSpacing:1}}>· {sp.tagline}</span>
+        </React.Fragment>
+      ))}
     </div>
-    <div class="section-count">03</div>
-  </div>
-  <div class="metrics-layout section-container-bottom">
-    <div>
-      <div class="metric-list">
-        <div class="metric-row-wrap">
-          <div class="metric-name">Power Density</div>
-          <div class="metric-val">840 W/kg</div>
-          <div style="width:100%; height: 2px; background: rgba(0,245,200,0.1);">
-            <div class="metric-bar-fill" style="width:84%"></div>
-          </div>
-        </div>
-        <div class="metric-row-wrap">
-          <div class="metric-name">Round-trip Efficiency</div>
-          <div class="metric-val" style="color: var(--accent2);">96.2%</div>
-          <div style="width:100%; height: 2px; background: rgba(255,77,109,0.1);">
-            <div class="metric-bar-fill" style="width:96.2%; background: var(--accent2);"></div>
-          </div>
-        </div>
-        <div class="metric-row-wrap">
-          <div class="metric-name">Cycle Stability</div>
-          <div class="metric-val" style="color: var(--accent3);">12,000+</div>
-          <div style="width:100%; height: 2px; background: rgba(123,97,255,0.1);">
-            <div class="metric-bar-fill" style="width:72%; background: var(--accent3);"></div>
-          </div>
-        </div>
-        <div class="metric-row-wrap">
-          <div class="metric-name">Charge Rate (C)</div>
-          <div class="metric-val">6C</div>
-          <div style="width:100%; height: 2px; background: rgba(0,245,200,0.1);">
-            <div class="metric-bar-fill" style="width:60%"></div>
-          </div>
-        </div>
-        <div class="metric-row-wrap">
-          <div class="metric-name">Operating Temp Range</div>
-          <div class="metric-val" style="color: var(--accent4);">−40°→120°C</div>
-          <div style="width:100%; height: 2px; background: rgba(245,196,0,0.1);">
-            <div class="metric-bar-fill" style="width:88%; background: var(--accent4);"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="chart-panel">
-      <div class="chart-header">
-        <div>
-          <div class="chart-title">Output Power Projection</div>
-          <div class="chart-sub">Megawatts — 2022–2028 Forecast</div>
-        </div>
-        <div class="chart-legend">
-          <div class="legend-item"><div class="legend-dot" style="background: var(--accent1)"></div>Robotics</div>
-          <div class="legend-item"><div class="legend-dot" style="background: var(--accent2)"></div>Fusion</div>
-          <div class="legend-item"><div class="legend-dot" style="background: var(--accent3)"></div>Storage</div>
-        </div>
-      </div>
-      <div class="chart-area">
-        <canvas id="energyChart" width="700" height="220"></canvas>
-      </div>
-    </div>
-  </div>
-</section>
+  );
+}
 
-<!-- TEAM -->
-<section id="team">
-  <div class="section-container-top">
-    <div class="section-header">
-      <div>
-        <div class="section-label">The Minds Behind T3</div>
-        <h2 class="section-title">Research Leaders</h2>
-      </div>
-      <div class="section-count">04</div>
-    </div>
-    <div class="team-grid team-margin">
-      <div class="team-card">
-        <div class="avatar" style="background: linear-gradient(135deg, var(--accent1), #005040)">DR</div>
-        <div class="member-name">Dr. Dana Reyes</div>
-        <div class="member-role">Director, Autonomous Systems</div>
-        <div class="member-dept">Former MIT CSAIL — 18 years in reinforcement learning for robotic locomotion</div>
-      </div>
-      <div class="team-card">
-        <div class="avatar" style="background: linear-gradient(135deg, var(--accent2), #500020)">KM</div>
-        <div class="member-name">Prof. Kenji Mori</div>
-        <div class="member-role">Lead, Fusion Energy</div>
-        <div class="member-dept">Princeton Plasma Physics Lab — Pioneer in AI-driven tokamak stabilization</div>
-      </div>
-      <div class="team-card">
-        <div class="avatar" style="background: linear-gradient(135deg, var(--accent3), #200050)">AO</div>
-        <div class="member-name">Dr. Amara Osei</div>
-        <div class="member-role">Chief Materials Scientist</div>
-        <div class="member-dept">Caltech Materials Science — Inventor of T3's ceramic electrolyte substrate</div>
-      </div>
-      <div class="team-card">
-        <div class="avatar" style="background: linear-gradient(135deg, var(--accent4), #504000)">LV</div>
-        <div class="member-name">Dr. Lena Vasquez</div>
-        <div class="member-role">Head, Neural Interfaces</div>
-        <div class="member-dept">UCSF Neuroscience — 200+ peer-reviewed publications in BMI research</div>
-      </div>
-    </div>
-  </div>
-</section>
+// ──────────────────────────────────────────────────────────────
+// APP
+// ──────────────────────────────────────────────────────────────
+function App(){
+  const [sel,setSel]=React.useState(null);
+  const [showPeople,setShowPeople]=React.useState(false);
+  const [showDir,setShowDir]=React.useState(false);
+  const [hovPerson,setHovPerson]=React.useState(null);
+  const [wheel,setWheel]=React.useState(false);
 
-<!-- PUBLICATIONS -->
-<section id="publications">
-  <div class="section-container-bottom">
-    <div class="section-header">
-      <div>
-        <div class="section-label">Knowledge Output</div>
-        <h2 class="section-title">Recent Publications</h2>
-      </div>
-      <div class="section-count">05</div>
-    </div>
-    <div class="pub-list">
-      <div class="pub-row">
-        <div class="pub-year">2025</div>
-        <div>
-          <div class="pub-title">Zero-Shot Terrain Adaptation in Bipedal Robots via Latent World Models</div>
-          <div class="pub-journal" style="margin-top:6px">Nature Machine Intelligence</div>
-        </div>
-        <div class="pub-journal">Reyes, Park et al.</div>
-        <div class="pub-badge featured">Featured</div>
-      </div>
-      <div class="pub-row">
-        <div class="pub-year">2025</div>
-        <div>
-          <div class="pub-title">Plasma Disruption Prediction at 50ms Lead-Time Using Transformer Architectures</div>
-          <div class="pub-journal" style="margin-top:6px">Physical Review Letters</div>
-        </div>
-        <div class="pub-journal">Mori, Chen et al.</div>
-        <div class="pub-badge new">New</div>
-      </div>
-      <div class="pub-row">
-        <div class="pub-year">2024</div>
-        <div>
-          <div class="pub-title">Ceramic-Oxide Solid Electrolytes: Suppressing Li Dendrite Growth at 6C Rates</div>
-          <div class="pub-journal" style="margin-top:6px">Advanced Energy Materials</div>
-        </div>
-        <div class="pub-journal">Osei, Kim et al.</div>
-        <div class="pub-badge open">Open Access</div>
-      </div>
-      <div class="pub-row">
-        <div class="pub-year">2024</div>
-        <div>
-          <div class="pub-title">1200-Agent Swarm Coordination: Emergent Behaviors Without Central Control</div>
-          <div class="pub-journal" style="margin-top:6px">Science Robotics</div>
-        </div>
-        <div class="pub-journal">Tanaka, Reyes et al.</div>
-        <div class="pub-badge featured">Featured</div>
-      </div>
-      <div class="pub-row">
-        <div class="pub-year">2024</div>
-        <div>
-          <div class="pub-title">Sub-8ms Latency Bidirectional Neural Interface for Robotic Teleoperation</div>
-          <div class="pub-journal" style="margin-top:6px">Neuron</div>
-        </div>
-        <div class="pub-journal">Vasquez, Li et al.</div>
-        <div class="pub-badge new">New</div>
-      </div>
-    </div>
-  </div>
-</section>
+  const handleSelect=React.useCallback(node=>{
+    setSel(node);
+    if(node)setShowDir(false);
+  },[]);
 
-<!-- CTA -->
-<section id="cta">
-  <div class="cta-orb"></div>
-  <div class="cta-content">
-    <div class="section-label center-label">Join The Frontier</div>
-    <h2 class="cta-title">Ready to Shape<br><span>Tomorrow's Technology?</span></h2>
-    <p class="cta-desc">
-      We're actively seeking researchers, engineers, and visionaries to join T3. Open positions across robotics, energy systems, materials science, and neural interfaces.
-    </p>
-    <div class="cta-buttons">
-      <a href="#" class="btn-primary">View Open Roles</a>
-      <a href="#" class="btn-ghost">Partner With Us</a>
-    </div>
-  </div>
-</section>
+  const hlProjects=sel?._type==='person'?sel.projects:null;
 
-<!-- FOOTER -->
-<footer>
-  <div class="footer-logo">[T3] COLLECTIVE © 2026</div>
-  <ul class="footer-links">
-    <li><a href="#">Privacy</a></li>
-    <li><a href="#">Terms</a></li>
-    <li><a href="#">Contact</a></li>
-    <li><a href="#">Press</a></li>
-  </ul>
-  <div class="footer-copy">New York, USA — All rights reserved</div>
-</footer>
-<script src="script.js"></script>
+  return(
+    <div style={{height:'100vh',display:'flex',flexDirection:'column',background:'#04060e'}}>
+
+      {/* NAV */}
+      <nav style={{height:52,display:'flex',alignItems:'center',justifyContent:'space-between',
+        padding:'0 20px',background:'rgba(3,5,12,0.95)',borderBottom:'1px solid rgba(0,212,255,0.07)',
+        backdropFilter:'blur(16px)',flexShrink:0,zIndex:100}}>
+        <div style={{display:'flex',alignItems:'center',gap:10,fontFamily:"'Orbitron',monospace",
+          fontSize:13,fontWeight:700,letterSpacing:3,color:'#00d4ff',
+          textShadow:'0 0 20px rgba(0,212,255,0.3)'}}>
+          <div style={{width:24,height:24,border:'2px solid #00d4ff',display:'flex',alignItems:'center',
+            justifyContent:'center',fontSize:8,fontFamily:"'Orbitron',monospace",fontWeight:700,
+            clipPath:'polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%)',
+            background:'rgba(0,212,255,0.05)',color:'#00d4ff'}}>T3</div>
+          T3–RC
+          <span style={{fontFamily:"'Space Mono',monospace",fontSize:7.5,letterSpacing:2,
+            color:'rgba(0,212,255,0.25)',fontWeight:400,marginLeft:2}}>PROJECT NETWORK</span>
+        </div>
+        <div style={{display:'flex',gap:6,alignItems:'center'}}>
+          {[
+            {label:'Researchers',active:showPeople,fn:()=>setShowPeople(p=>!p)},
+            {label:'Team Directory',active:showDir,fn:()=>{setShowDir(d=>!d);setSel(null);}},
+          ].map(b=>(
+            <button key={b.label} onClick={b.fn} style={{fontFamily:"'Orbitron',monospace",
+              fontSize:8,letterSpacing:1.5,textTransform:'uppercase',padding:'5px 13px',
+              border:`1px solid ${b.active?'#00d4ff':'rgba(0,212,255,0.12)'}`,
+              background:b.active?'rgba(0,212,255,0.08)':'none',
+              color:b.active?'#00d4ff':'#2a3a4e',cursor:'pointer',transition:'all 0.15s'}}>{b.label}</button>
+          ))}
+          <div style={{width:1,height:18,background:'rgba(0,212,255,0.08)'}}/>
+          {Object.entries(SC).map(([k,v])=>{
+            const cnt=DATA.projects.filter(p=>p.status===k).length;
+            return(
+              <div key={k} style={{fontFamily:"'Space Mono',monospace",fontSize:7,letterSpacing:0.8,
+                padding:'3px 7px',border:`1px solid ${v.color}28`,color:v.color,background:v.bg}}>
+                {cnt} {v.label}
+              </div>
+            );
+          })}
+        </div>
+      </nav>
+
+      {/* CANVAS */}
+      <div style={{flex:1,position:'relative',overflow:'hidden'}}>
+        <NetworkGraph data={DATA} selected={sel} onSelect={handleSelect}
+          showPeople={showPeople} hovPerson={hovPerson} onHovPerson={setHovPerson}
+          hlProjects={hlProjects}/>
+        <Legend/>
+        <SponsorBadge/>
+
+        {showDir&&(
+          <PeopleDirectory data={DATA}
+            onSelect={node=>{handleSelect(node);setShowDir(false);}}
+            onClose={()=>setShowDir(false)}/>
+        )}
+
+        {sel&&(
+          sel._type==='person'
+            ?<PersonPanel person={sel} data={DATA} onClose={()=>setSel(null)} onProject={p=>setSel(p)}/>
+            :<ProjectPanel project={sel} data={DATA} onClose={()=>setSel(null)} onPerson={setSel}/>
+        )}
+
+        {/* ── BUSINESSES BUTTON ── */}
+        <button
+          onClick={e=>{e.stopPropagation();setWheel(w=>!w);}}
+          style={{
+            position:'absolute',bottom:20,right:20,
+            fontFamily:"'Orbitron',monospace",fontSize:10,fontWeight:700,
+            letterSpacing:2.5,textTransform:'uppercase',
+            padding:'12px 28px',
+            border:`1px solid ${wheel?'#00d4ff':'rgba(0,212,255,0.35)'}`,
+            background:wheel?'rgba(0,212,255,0.12)':'rgba(5,7,15,0.96)',
+            color:wheel?'#00d4ff':'rgba(0,212,255,0.6)',
+            cursor:'pointer',
+            clipPath:'polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%)',
+            display:'flex',alignItems:'center',gap:10,
+            boxShadow:wheel
+              ?'0 0 30px rgba(0,212,255,0.25),inset 0 0 20px rgba(0,212,255,0.04)'
+              :'0 0 16px rgba(0,0,0,0.6)',
+            transition:'all 0.2s ease',
+            zIndex:500,
+          }}>
+          <span style={{fontSize:16,lineHeight:1}}>⬡</span>
+          BUSINESSES
+          <span style={{fontSize:10,opacity:0.5,lineHeight:1}}>{wheel?'▲':'▼'}</span>
+        </button>
+      </div>
+
+      {/* GTA WHEEL OVERLAY */}
+      {wheel&&<GTAWheel businesses={DATA.businesses} onClose={()=>setWheel(false)}/>}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
 </body>
 </html>
