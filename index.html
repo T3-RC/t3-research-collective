@@ -343,10 +343,10 @@ function curvePath(x1,y1,x2,y2){
 // ──────────────────────────────────────────────────────────────
 // HERO LANDING SECTION
 // ──────────────────────────────────────────────────────────────
-function Hero({onScrollDown}){
+function Hero({onClose, visible, loading}){
   return(
     <section id="hero" style={{position:'relative',minHeight:'100vh',
-      display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',
+      display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',position:'fixed',inset:0,zIndex:2000,opacity:visible?1:0,pointerEvents:visible?'auto':'none',transition:'opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.8s',visibility:visible?'visible':'hidden',
       padding:'60px 24px',overflow:'hidden',background:'#04060e'}}>
 
       {/* Floating orbs */}
@@ -384,6 +384,16 @@ function Hero({onScrollDown}){
         <div style={{fontFamily:"'Space Mono',monospace",fontSize:8,letterSpacing:2.5,
           color:'rgba(0,212,255,0.4)'}}>EST. 2024 — UNITED STATES</div>
       </div>
+      
+      {/* Close Button */}
+      {!loading && visible && (
+        <button onClick={onClose}
+          style={{position:'absolute',top:24,right:32,zIndex:10,background:'none',border:'1px solid rgba(0,212,255,0.3)',color:'#00d4ff',fontFamily:"'Orbitron',monospace",fontSize:9,fontWeight:700,letterSpacing:2,padding:'8px 16px',cursor:'pointer',clipPath:'polygon(8px 0,100% 0,calc(100% - 8px) 100%,0 100%)',transition:'all 0.2s'}}
+          onMouseEnter={e=>{e.currentTarget.style.background='rgba(0,212,255,0.1)';e.currentTarget.style.borderColor='#00d4ff';}}
+          onMouseLeave={e=>{e.currentTarget.style.background='none';e.currentTarget.style.borderColor='rgba(0,212,255,0.3)';}}>
+          [ X ] CLOSE
+        </button>
+      )}
 
       {/* Content */}
       <div style={{position:'relative',zIndex:2,textAlign:'center',maxWidth:1000,
@@ -395,7 +405,7 @@ function Hero({onScrollDown}){
           marginBottom:36,textTransform:'uppercase'}}>
           <span style={{width:5,height:5,borderRadius:'50%',background:'#00d4ff',
             animation:'pulse 2s infinite'}}/>
-          Operational — 8 active research nodes
+          {loading ? 'Synchronizing Live Data...' : 'Operational — 8 active research nodes'}
         </div>
 
         <h1 style={{fontFamily:"'Orbitron',monospace",fontWeight:900,
@@ -417,27 +427,28 @@ function Hero({onScrollDown}){
           at the frontier of human capability.
         </p>
 
-        <button onClick={onScrollDown}
+        <button onClick={loading ? null : onClose}
           style={{fontFamily:"'Orbitron',monospace",fontSize:11,fontWeight:700,
             letterSpacing:3,textTransform:'uppercase',padding:'14px 36px',
             border:'1px solid #00d4ff',background:'rgba(0,212,255,0.08)',
-            color:'#00d4ff',cursor:'pointer',
+            color:'#00d4ff',cursor:loading ? 'default' : 'pointer',
             clipPath:'polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%)',
             boxShadow:'0 0 24px rgba(0,212,255,0.18),inset 0 0 16px rgba(0,212,255,0.06)',
-            transition:'all 0.2s ease'}}
+            transition:'all 0.2s ease',
+            opacity: loading ? 0.6 : 1}}
           onMouseEnter={e=>{e.currentTarget.style.background='rgba(0,212,255,0.15)';e.currentTarget.style.boxShadow='0 0 32px rgba(0,212,255,0.3),inset 0 0 20px rgba(0,212,255,0.1)';}}
           onMouseLeave={e=>{e.currentTarget.style.background='rgba(0,212,255,0.08)';e.currentTarget.style.boxShadow='0 0 24px rgba(0,212,255,0.18),inset 0 0 16px rgba(0,212,255,0.06)';}}>
-          Explore the Network &nbsp;▼
+          {loading ? 'Loading Sheet Data...' : 'Explore the Network'} &nbsp;{loading ? '⧗' : '▼'}
         </button>
       </div>
 
       {/* Scroll cue */}
-      <div onClick={onScrollDown}
+      <div onClick={loading ? null : onClose}
         style={{position:'absolute',bottom:30,left:'50%',transform:'translateX(-50%)',
-          display:'flex',flexDirection:'column',alignItems:'center',gap:8,cursor:'pointer',
+          display:'flex',flexDirection:'column',alignItems:'center',gap:8,cursor:loading ? 'default' : 'pointer',
           fontFamily:"'Space Mono',monospace",fontSize:8,letterSpacing:3,
           color:'rgba(0,212,255,0.45)'}}>
-        SCROLL
+        {loading ? 'CONNECTING' : 'EXPLORE'}
         <div style={{width:1,height:32,background:'linear-gradient(to bottom,rgba(0,212,255,0.5),transparent)',
           animation:'scrollHint 1.8s ease-in-out infinite'}}/>
       </div>
@@ -1108,7 +1119,7 @@ function SponsorBadge({data}){
 // ──────────────────────────────────────────────────────────────
 // NETWORK SECTION
 // ──────────────────────────────────────────────────────────────
-function NetworkSection({data,onBackToHero}){
+function NetworkSection({data,onOpenHero}){
   const [sel,setSel]=React.useState(null);
   const [showPeople,setShowPeople]=React.useState(false);
   const [showDir,setShowDir]=React.useState(false);
@@ -1232,40 +1243,24 @@ function NetworkSection({data,onBackToHero}){
 // ──────────────────────────────────────────────────────────────
 function App(){
   const [data,setData] = React.useState(null);
-  const [err,setErr] = React.useState(null);
-  const networkRef = React.useRef(null);
-  const heroRef = React.useRef(null);
+  const [showHero,setShowHero] = React.useState(true);
 
   React.useEffect(()=>{
-    loadData().then(setData).catch(e=>{setErr(String(e));setData(FALLBACK_DATA);});
+    loadData().then(d => {
+      setData(d);
+      // Smoothly hide hero after data is ready
+      setTimeout(() => setShowHero(false), 200);
+    }).catch(e => {
+      console.error(e);
+      setData(FALLBACK_DATA);
+      setTimeout(() => setShowHero(false), 200);
+    });
   },[]);
 
-  const scrollToNetwork = () => {
-    document.getElementById('network')?.scrollIntoView({behavior:'smooth'});
-  };
-  const scrollToHero = () => {
-    document.getElementById('hero')?.scrollIntoView({behavior:'smooth'});
-  };
-
-  if(!data){
-    return(
-      <div style={{height:'100vh',display:'flex',alignItems:'center',justifyContent:'center',
-        background:'#04060e',color:'#00d4ff',fontFamily:"'Space Mono',monospace",
-        fontSize:11,letterSpacing:3}}>
-        <div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:14}}>
-          <div style={{width:38,height:38,border:'1.5px solid #00d4ff',
-            borderTopColor:'transparent',borderRadius:'50%',
-            animation:'spin 1s linear infinite'}}/>
-          LOADING NETWORK
-        </div>
-      </div>
-    );
-  }
-
   return(
-    <div ref={heroRef}>
-      <Hero onScrollDown={scrollToNetwork}/>
-      <NetworkSection data={data} onBackToHero={scrollToHero}/>
+    <div style={{position:'relative',width:'100%',height:'100vh',overflow:'hidden'}}>
+      <Hero visible={showHero} onClose={() => setShowHero(false)} loading={!data}/>
+      {data && <NetworkSection data={data} onOpenHero={() => setShowHero(true)}/>}
     </div>
   );
 }
